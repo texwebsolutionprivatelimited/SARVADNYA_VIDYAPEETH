@@ -13,8 +13,7 @@ import {
   ImagePlus,
   Upload,
 } from "lucide-react";
-import { db } from "../../firebase";
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from "firebase/firestore";
+import { db, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from "../../firebase";
 
 const CATEGORIES = ["All", "Technology", "Campus", "Admissions", "Placements", "Events"];
 

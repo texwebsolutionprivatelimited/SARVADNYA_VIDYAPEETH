@@ -3,8 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import SectionHeading from "../SectionHeading";
 import { X, Calendar, Tag } from "lucide-react";
-import { db } from "../../firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { db, collection, getDocs } from "../../firebase";
 
 const BLOGS = [
   {

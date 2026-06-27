@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { db } from "../firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { db, collection, getDocs } from "../firebase";
 import { FadeIn } from "../components/Animations";
 import SectionHeading from "../components/SectionHeading";
 import {
@@ -161,8 +160,8 @@ export default function EventsPage() {
               <button
                 onClick={() => setActiveTab("upcoming")}
                 className={`flex items-center gap-2 px-5 py-2 rounded-lg text-xs md:text-sm font-black transition-all ${activeTab === "upcoming"
-                    ? "bg-purple-600 text-white shadow-md"
-                    : "text-slate-650 hover:text-purple-650"
+                  ? "bg-purple-600 text-white shadow-md"
+                  : "text-slate-650 hover:text-purple-650"
                   }`}
               >
                 <Calendar className="w-3.5 h-3.5" />
@@ -171,8 +170,8 @@ export default function EventsPage() {
               <button
                 onClick={() => setActiveTab("past")}
                 className={`flex items-center gap-2 px-5 py-2 rounded-lg text-xs md:text-sm font-black transition-all ${activeTab === "past"
-                    ? "bg-purple-600 text-white shadow-md"
-                    : "text-slate-650 hover:text-purple-650"
+                  ? "bg-purple-600 text-white shadow-md"
+                  : "text-slate-650 hover:text-purple-650"
                   }`}
               >
                 <Camera className="w-3.5 h-3.5" />

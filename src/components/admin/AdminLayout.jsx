@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { signOut } from "firebase/auth";
-import { auth } from "../../firebase";
+import { auth, signOut } from "../../firebase";
 import {
   LayoutDashboard,
   FileText,

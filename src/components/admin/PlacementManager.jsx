@@ -14,8 +14,7 @@ import {
   Upload,
   ImagePlus,
 } from "lucide-react";
-import { db } from "../../firebase";
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { db, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "../../firebase";
 
 const INITIAL_PLACEMENTS = [
   { id: 1, student: "Ananya Verma", course: "BCA", company: "TCS", role: "Software Developer", package: "6.5 LPA", year: "2026", status: "Placed", photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face" },

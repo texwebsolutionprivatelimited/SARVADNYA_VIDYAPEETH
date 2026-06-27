@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase";
+import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "../../firebase";
 import { Shield, Mail, Lock, AlertCircle, Loader, Eye, EyeOff } from "lucide-react";
 
 export default function AdminLogin() {

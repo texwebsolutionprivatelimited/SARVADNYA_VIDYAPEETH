@@ -12,8 +12,7 @@ import {
   Eye,
   MessageSquare,
 } from "lucide-react";
-import { db } from "../../firebase";
-import { collection, getDocs, addDoc, updateDoc, doc } from "firebase/firestore";
+import { db, collection, getDocs, addDoc, updateDoc, doc } from "../../firebase";
 
 const INITIAL_ENQUIRIES = [
   { id: 1, name: "Rahul Sharma", email: "rahul.sharma@gmail.com", phone: "+91 98765 43210", course: "BCA", message: "Interested in BCA admission for 2026 session.", date: "Jun 27, 2026", status: "Pending" },
@@ -151,9 +150,8 @@ export default function EnquiryManager() {
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all duration-200 ${
-                filter === f ? "bg-purple-700 text-white border-purple-600 shadow-sm" : "bg-white text-slate-600 border-purple-100 hover:bg-purple-50 hover:text-purple-700"
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all duration-200 ${filter === f ? "bg-purple-700 text-white border-purple-600 shadow-sm" : "bg-white text-slate-600 border-purple-100 hover:bg-purple-50 hover:text-purple-700"
+                }`}
             >
               {f}
             </button>

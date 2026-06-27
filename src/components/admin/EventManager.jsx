@@ -12,8 +12,7 @@ import {
   Users,
   Filter,
 } from "lucide-react";
-import { db } from "../../firebase";
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { db, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "../../firebase";
 
 const INITIAL_EVENTS = [
   { id: 1, title: "Vidya-Tech National Hackathon 2026", date: "Jul 15 – 16, 2026", time: "09:00 AM", venue: "Computer Labs & Seminar Hall", category: "Technical", status: "Upcoming", attendees: 120 },

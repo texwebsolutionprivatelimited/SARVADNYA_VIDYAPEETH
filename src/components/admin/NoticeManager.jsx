@@ -13,8 +13,7 @@ import {
   AlertCircle,
   Clock,
 } from "lucide-react";
-import { db } from "../../firebase";
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { db, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "../../firebase";
 
 const PRIORITY_CONFIG = {
   Urgent: { icon: AlertTriangle, color: "bg-red-50 text-red-700 border-red-200", dot: "bg-red-500", gradient: "from-red-500 to-rose-600" },

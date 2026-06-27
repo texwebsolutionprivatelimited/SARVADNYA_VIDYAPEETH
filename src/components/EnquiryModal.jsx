@@ -77,8 +77,7 @@ export default function EnquiryModal() {
           date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
           status: "Pending"
         };
-        const { db } = await import("../firebase");
-        const { collection, addDoc } = await import("firebase/firestore");
+        const { db, collection, addDoc } = await import("../firebase");
         await addDoc(collection(db, "enquiries"), enqData);
         setIsSubmitted(true);
       } catch (err) {

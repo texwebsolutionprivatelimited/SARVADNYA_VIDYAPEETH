@@ -11,8 +11,7 @@ import {
   Eye,
   MapPin,
 } from "lucide-react";
-import { db } from "../../firebase";
-import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
+import { db, collection, getDocs, addDoc, deleteDoc, doc } from "../../firebase";
 
 const ALBUMS = ["All", "Campus Tour", "Events", "Hackathon 2026", "Cultural Fest", "Hostel", "Classroom"];
 

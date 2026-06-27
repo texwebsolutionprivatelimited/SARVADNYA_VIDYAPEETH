@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Clock, 
-  Send, 
-  CheckCircle2, 
-  ChevronDown, 
-  MessageSquare, 
-  Building2, 
-  GraduationCap, 
-  Briefcase, 
+import {
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  Send,
+  CheckCircle2,
+  ChevronDown,
+  MessageSquare,
+  Building2,
+  GraduationCap,
+  Briefcase,
   ArrowRight,
   ExternalLink,
   Info
@@ -22,7 +22,7 @@ import SectionHeading from "../components/SectionHeading";
 export default function ContactPage() {
   // Tabs for different departments
   const [activeTab, setActiveTab] = useState("admissions");
-  
+
   // Accordion state for FAQs
   const [activeFaq, setActiveFaq] = useState(null);
 
@@ -138,10 +138,9 @@ export default function ContactPage() {
 
     setIsSubmitting(true);
     try {
-      const { db } = await import("../firebase");
-      const { collection, addDoc } = await import("firebase/firestore");
+      const { db, collection, addDoc } = await import("../firebase");
       const randomTicket = "SV-" + Math.floor(100000 + Math.random() * 900000);
-      
+
       await addDoc(collection(db, "enquiries"), {
         name: formData.name,
         email: formData.email,
@@ -195,7 +194,7 @@ export default function ContactPage() {
           <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-purple-900/20 blur-[100px] pointer-events-none" />
           <div className="absolute -bottom-20 -right-20 w-96 h-96 rounded-full bg-indigo-900/20 blur-[100px] pointer-events-none" />
         </div>
-        
+
         <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
           <SectionHeading
             tagline="Connect With Us"
@@ -211,10 +210,10 @@ export default function ContactPage() {
       {/* ─── Main Content Section (Grid) ─── */}
       <section className="py-16 md:py-20 relative px-6 max-w-7xl mx-auto w-full flex-grow z-10">
         <div className="grid lg:grid-cols-12 gap-10 xl:gap-12 items-start">
-          
+
           {/* LEFT: Info Column (7 Cols on large screen) */}
           <div className="lg:col-span-7 space-y-10">
-            
+
             {/* Interactive Department Tab Contacts */}
             <FadeIn direction="left">
               <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100">
@@ -233,11 +232,10 @@ export default function ContactPage() {
                       <button
                         key={key}
                         onClick={() => setActiveTab(key)}
-                        className={`flex items-center justify-center gap-1.5 flex-1 min-w-[80px] sm:min-w-[120px] py-3 text-[10px] sm:text-xs font-bold rounded-xl transition-all duration-300 ${
-                          isActive
+                        className={`flex items-center justify-center gap-1.5 flex-1 min-w-[80px] sm:min-w-[120px] py-3 text-[10px] sm:text-xs font-bold rounded-xl transition-all duration-300 ${isActive
                             ? "bg-white text-slate-900 shadow-sm border border-slate-200/50"
                             : "text-slate-500 hover:text-slate-800"
-                        }`}
+                          }`}
                       >
                         <DeptIcon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isActive ? "text-purple-700" : "text-slate-400"}`} />
                         {departments[key].shortTitle}
@@ -360,11 +358,10 @@ export default function ContactPage() {
                             value={formData.name}
                             onChange={handleInputChange}
                             placeholder="Eg: Rahul Kumar"
-                            className={`w-full bg-slate-50/50 border rounded-2xl px-4 py-3.5 text-sm outline-none transition-all ${
-                              errors.name 
-                                ? "border-red-200 focus:border-red-500 focus:ring-red-100" 
+                            className={`w-full bg-slate-50/50 border rounded-2xl px-4 py-3.5 text-sm outline-none transition-all ${errors.name
+                                ? "border-red-200 focus:border-red-500 focus:ring-red-100"
                                 : "border-slate-200 focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
-                            }`}
+                              }`}
                           />
                           {errors.name && <span className="text-[10px] text-red-500 font-bold mt-1 block">{errors.name}</span>}
                         </div>
@@ -378,11 +375,10 @@ export default function ContactPage() {
                             value={formData.phone}
                             onChange={handleInputChange}
                             placeholder="Eg: 9955330733"
-                            className={`w-full bg-slate-50/50 border rounded-2xl px-4 py-3.5 text-sm outline-none transition-all ${
-                              errors.phone 
-                                ? "border-red-200 focus:border-red-500 focus:ring-red-100" 
+                            className={`w-full bg-slate-50/50 border rounded-2xl px-4 py-3.5 text-sm outline-none transition-all ${errors.phone
+                                ? "border-red-200 focus:border-red-500 focus:ring-red-100"
                                 : "border-slate-200 focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
-                            }`}
+                              }`}
                           />
                           {errors.phone && <span className="text-[10px] text-red-500 font-bold mt-1 block">{errors.phone}</span>}
                         </div>
@@ -396,11 +392,10 @@ export default function ContactPage() {
                             value={formData.email}
                             onChange={handleInputChange}
                             placeholder="Eg: rahul@example.com"
-                            className={`w-full bg-slate-50/50 border rounded-2xl px-4 py-3.5 text-sm outline-none transition-all ${
-                              errors.email 
-                                ? "border-red-200 focus:border-red-500 focus:ring-red-100" 
+                            className={`w-full bg-slate-50/50 border rounded-2xl px-4 py-3.5 text-sm outline-none transition-all ${errors.email
+                                ? "border-red-200 focus:border-red-500 focus:ring-red-100"
                                 : "border-slate-200 focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
-                            }`}
+                              }`}
                           />
                           {errors.email && <span className="text-[10px] text-red-500 font-bold mt-1 block">{errors.email}</span>}
                         </div>
@@ -412,11 +407,10 @@ export default function ContactPage() {
                             name="course"
                             value={formData.course}
                             onChange={handleInputChange}
-                            className={`w-full bg-slate-50/50 border rounded-2xl px-4 py-3.5 text-sm outline-none transition-all cursor-pointer ${
-                              errors.course 
-                                ? "border-red-200 focus:border-red-500 focus:ring-red-100" 
+                            className={`w-full bg-slate-50/50 border rounded-2xl px-4 py-3.5 text-sm outline-none transition-all cursor-pointer ${errors.course
+                                ? "border-red-200 focus:border-red-500 focus:ring-red-100"
                                 : "border-slate-200 focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
-                            }`}
+                              }`}
                           >
                             <option value="">Choose your course</option>
                             <option value="BCA">BCA - Bachelor of Computer Applications</option>
@@ -435,11 +429,10 @@ export default function ContactPage() {
                             onChange={handleInputChange}
                             rows={3}
                             placeholder="Share any specific questions or eligibility queries..."
-                            className={`w-full bg-slate-50/50 border rounded-2xl px-4 py-3.5 text-sm outline-none transition-all resize-none ${
-                              errors.message 
-                                ? "border-red-200 focus:border-red-500 focus:ring-red-100" 
+                            className={`w-full bg-slate-50/50 border rounded-2xl px-4 py-3.5 text-sm outline-none transition-all resize-none ${errors.message
+                                ? "border-red-200 focus:border-red-500 focus:ring-red-100"
                                 : "border-slate-200 focus:border-purple-600 focus:ring-2 focus:ring-purple-200"
-                            }`}
+                              }`}
                           />
                           {errors.message && <span className="text-[10px] text-red-500 font-bold mt-1 block">{errors.message}</span>}
                         </div>
@@ -479,7 +472,7 @@ export default function ContactPage() {
                       <div className="mx-auto w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-md">
                         <CheckCircle2 className="w-8 h-8" />
                       </div>
-                      
+
                       <div className="space-y-2">
                         <h4 className="font-heading font-black text-slate-900 text-xl">Enquiry Received!</h4>
                         <p className="text-slate-500 text-xs font-semibold px-4">Thank you for contacting us. An admissions advisor will get back to you shortly.</p>
@@ -544,9 +537,8 @@ export default function ContactPage() {
                   >
                     <span className="text-xs sm:text-sm md:text-base">{faq.q}</span>
                     <ChevronDown
-                      className={`w-4 h-4 text-slate-400 transition-transform duration-300 flex-shrink-0 ${
-                        isOpen ? "rotate-180 text-purple-600" : ""
-                      }`}
+                      className={`w-4 h-4 text-slate-400 transition-transform duration-300 flex-shrink-0 ${isOpen ? "rotate-180 text-purple-600" : ""
+                        }`}
                     />
                   </button>
 
