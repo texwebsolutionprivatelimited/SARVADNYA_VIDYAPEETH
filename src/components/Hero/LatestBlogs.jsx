@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import SectionHeading from "../SectionHeading";
 import { X, Calendar, Tag } from "lucide-react";
+import { db } from "../../firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 const BLOGS = [
   {
@@ -170,7 +172,7 @@ function BlogCard({ blog, onReadMore, className = "" }) {
 }
 
 /* ─── Mobile Horizontal Slider (visible below md / 768px) ─── */
-function MobileSlider({ onReadMore }) {
+function MobileSlider({ blogs, onReadMore }) {
   const scrollRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -180,8 +182,8 @@ function MobileSlider({ onReadMore }) {
     const cardWidth = el.firstElementChild.offsetWidth;
     const gap = 12;
     const index = Math.round(el.scrollLeft / (cardWidth + gap));
-    setActiveIndex(Math.min(Math.max(index, 0), BLOGS.length - 1));
-  }, []);
+    setActiveIndex(Math.min(Math.max(index, 0), blogs.length - 1));
+  }, [blogs.length]);
 
   const scrollToIndex = useCallback((index) => {
     const el = scrollRef.current;
@@ -212,7 +214,7 @@ function MobileSlider({ onReadMore }) {
           WebkitOverflowScrolling: "touch",
         }}
       >
-        {BLOGS.map((blog) => (
+        {blogs.map((blog) => (
           <div
             key={blog.id}
             className="flex-shrink-0 snap-start"
@@ -225,7 +227,7 @@ function MobileSlider({ onReadMore }) {
 
       {/* Dot indicators */}
       <div className="flex items-center justify-center gap-2 mt-4">
-        {BLOGS.map((_, i) => (
+        {blogs.map((_, i) => (
           <button
             key={i}
             onClick={() => scrollToIndex(i)}
@@ -243,13 +245,13 @@ function MobileSlider({ onReadMore }) {
 }
 
 /* ─── Desktop Slider (visible on md+ / 768px and above) ─── */
-function DesktopSlider({ onReadMore }) {
+function DesktopSlider({ blogs, onReadMore }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(1);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef(null);
 
-  const maxIndex = BLOGS.length - VISIBLE_CARDS;
+  const maxIndex = Math.max(0, blogs.length - VISIBLE_CARDS);
 
   const goNext = useCallback(() => {
     setDirection(1);
@@ -267,7 +269,7 @@ function DesktopSlider({ onReadMore }) {
     return () => clearInterval(timerRef.current);
   }, [goNext, isPaused]);
 
-  const visibleBlogs = BLOGS.slice(currentIndex, currentIndex + VISIBLE_CARDS);
+  const visibleBlogs = blogs.slice(currentIndex, currentIndex + VISIBLE_CARDS);
 
   return (
     <div
@@ -336,7 +338,33 @@ function DesktopSlider({ onReadMore }) {
 
 /* ─── Main Export ─── */
 export default function LatestBlogs() {
+  const [blogsList, setBlogsList] = useState([]);
   const [selectedBlog, setSelectedBlog] = useState(null);
+
+  useEffect(() => {
+    const loadBlogs = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "blogs"));
+        const list = [];
+        querySnapshot.forEach((doc) => {
+          // If status is published (or we can just load all)
+          const data = doc.data();
+          if (data.status === "Published") {
+            list.push({ id: doc.id, ...data });
+          }
+        });
+        if (list.length > 0) {
+          setBlogsList(list);
+        } else {
+          setBlogsList(BLOGS);
+        }
+      } catch (err) {
+        console.error("Failed to load blogs:", err);
+        setBlogsList(BLOGS);
+      }
+    };
+    loadBlogs();
+  }, []);
 
   // Prevent scroll when modal is open
   useEffect(() => {
@@ -372,10 +400,10 @@ export default function LatestBlogs() {
         />
 
         {/* ─── Mobile: Horizontal scroll slider ─── */}
-        <MobileSlider onReadMore={setSelectedBlog} />
+        {blogsList.length > 0 && <MobileSlider blogs={blogsList} onReadMore={setSelectedBlog} />}
 
         {/* ─── Desktop: 3-col animated slider ─── */}
-        <DesktopSlider onReadMore={setSelectedBlog} />
+        {blogsList.length > 0 && <DesktopSlider blogs={blogsList} onReadMore={setSelectedBlog} />}
       </div>
 
       {/* ─── Blog Modal ─── */}

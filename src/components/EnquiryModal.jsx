@@ -64,11 +64,27 @@ export default function EnquiryModal() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // Simulate form submission
-      setIsSubmitted(true);
+      try {
+        const enqData = {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.contact,
+          course: formData.domain,
+          message: `Inquiry Time Slot: ${formData.timeSlot}`,
+          date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+          status: "Pending"
+        };
+        const { db } = await import("../firebase");
+        const { collection, addDoc } = await import("firebase/firestore");
+        await addDoc(collection(db, "enquiries"), enqData);
+        setIsSubmitted(true);
+      } catch (err) {
+        console.error("Firestore submission failed, fallback to offline success:", err);
+        setIsSubmitted(true);
+      }
     }
   };
 

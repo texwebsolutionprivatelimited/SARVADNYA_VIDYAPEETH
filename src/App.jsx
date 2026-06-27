@@ -14,6 +14,7 @@ import EventsPage from "./pages/EventsPage"
 import AdmissionPage from "./pages/AdmissionPage"
 import ContactPage from "./pages/ContactPage"
 import MandatoryDisclosurePage from "./pages/MandatoryDisclosurePage"
+import AdminPanel from "./pages/AdminPanel"
 
 function App() {
   return (
@@ -34,6 +35,8 @@ function App() {
           <Route path="contact" element={<ContactPage />} />
           <Route path="mandatory-disclosure" element={<MandatoryDisclosurePage />} />
         </Route>
+        {/* Admin Panel — separate layout (no Navbar/Footer) */}
+        <Route path="/adminpanel/*" element={<AdminPanel />} />
       </Routes>
     </BrowserRouter>
   )

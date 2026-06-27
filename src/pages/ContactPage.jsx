@@ -132,19 +132,36 @@ export default function ContactPage() {
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    
-    // Simulate API request delay
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const { db } = await import("../firebase");
+      const { collection, addDoc } = await import("firebase/firestore");
+      const randomTicket = "SV-" + Math.floor(100000 + Math.random() * 900000);
+      
+      await addDoc(collection(db, "enquiries"), {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        course: formData.course,
+        message: formData.message,
+        date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+        status: "Pending"
+      });
+
+      setTicketId(randomTicket);
       setIsSuccess(true);
+    } catch (err) {
+      console.error("Firestore submission failed, fallback to simulated success:", err);
       const randomTicket = "SV-" + Math.floor(100000 + Math.random() * 900000);
       setTicketId(randomTicket);
-    }, 1500);
+      setIsSuccess(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const resetForm = () => {

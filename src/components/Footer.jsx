@@ -7,6 +7,7 @@ const ABOUT_LINKS = [
   { label: "Vision & Mission", path: "/about#vision-mission" },
   { label: "Leadership", path: "/about#leadership" },
   { label: "Infrastructure", path: "/campus" },
+  { label: "Admin Panel", path: "/adminpanel" },
 ];
 
 const ADMISSION_LINKS = [

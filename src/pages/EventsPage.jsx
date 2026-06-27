@@ -1,65 +1,103 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { db } from "../firebase";
+import { collection, getDocs } from "firebase/firestore";
 import { FadeIn } from "../components/Animations";
 import SectionHeading from "../components/SectionHeading";
-import { 
-  Calendar, 
-  MapPin, 
-  Sparkles, 
-  Trophy, 
-  Users, 
-  Music, 
-  Code, 
-  Lightbulb, 
-  Camera, 
-  ArrowRight 
+import {
+  Calendar,
+  MapPin,
+  Sparkles,
+  Trophy,
+  Users,
+  Music,
+  Code,
+  Lightbulb,
+  Camera,
+  ArrowRight
 } from "lucide-react";
+
+const DEFAULT_UPCOMING_EVENTS = [
+  {
+    id: 1,
+    title: "Vidya-Tech National Hackathon 2026",
+    date: "July 15 – 16, 2026",
+    time: "09:00 AM (36 Hours Run)",
+    venue: "Advanced Computer Labs & Seminar Hall",
+    category: "Technical",
+    desc: "A national-level coding sprint bringing together student programmers to solve real-world industry and public-sector problems."
+  },
+  {
+    id: 2,
+    title: "Tarang 2026: Annual Cultural Carnival",
+    date: "August 05 – 06, 2026",
+    time: "10:00 AM onwards",
+    venue: "Campus Main Ground & Auditorium",
+    category: "Cultural",
+    desc: "Two days of high-energy music fests, street theater, choreography competitions, fashion parades, and student food kiosks."
+  },
+  {
+    id: 3,
+    title: "National Seminar: Generative AI & Developer Productivity",
+    date: "September 12, 2026",
+    time: "10:30 AM – 04:00 PM",
+    venue: "Central Auditorium",
+    category: "Academic",
+    desc: "Guest speaker panels featuring senior engineers and AI researchers discussing LLMs, agentic coders, and standard prompt engineering."
+  },
+  {
+    id: 4,
+    title: "Sarvadnya Vidyapeeth BBA Business Pitch Challenge",
+    date: "October 03, 2026",
+    time: "01:30 PM – 05:30 PM",
+    venue: "Main Conference Room B",
+    category: "Management",
+    desc: "Incubator pitch round where student startups present business plans to venture capitalists and regional industry leaders."
+  }
+];
+
+const getCategoryIcon = (category) => {
+  switch (category) {
+    case "Technical":
+      return <Code className="w-5 h-5 text-purple-650" />;
+    case "Cultural":
+      return <Music className="w-5 h-5 text-pink-500" />;
+    case "Academic":
+      return <Lightbulb className="w-5 h-5 text-amber-500" />;
+    case "Management":
+      return <Trophy className="w-5 h-5 text-indigo-500" />;
+    default:
+      return <Calendar className="w-5 h-5 text-slate-500" />;
+  }
+};
 
 export default function EventsPage() {
   const [activeTab, setActiveTab] = useState("upcoming");
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
 
-  const upcomingEvents = [
-    {
-      id: 1,
-      title: "Vidya-Tech National Hackathon 2026",
-      date: "July 15 – 16, 2026",
-      time: "09:00 AM (36 Hours Run)",
-      venue: "Advanced Computer Labs & Seminar Hall",
-      category: "Technical",
-      icon: <Code className="w-5 h-5 text-purple-650" />,
-      desc: "A national-level coding sprint bringing together student programmers to solve real-world industry and public-sector problems."
-    },
-    {
-      id: 2,
-      title: "Tarang 2026: Annual Cultural Carnival",
-      date: "August 05 – 06, 2026",
-      time: "10:00 AM onwards",
-      venue: "Campus Main Ground & Auditorium",
-      category: "Cultural",
-      icon: <Music className="w-5 h-5 text-pink-500" />,
-      desc: "Two days of high-energy music fests, street theater, choreography competitions, fashion parades, and student food kiosks."
-    },
-    {
-      id: 3,
-      title: "National Seminar: Generative AI & Developer Productivity",
-      date: "September 12, 2026",
-      time: "10:30 AM – 04:00 PM",
-      venue: "Central Auditorium",
-      category: "Academic",
-      icon: <Lightbulb className="w-5 h-5 text-amber-500" />,
-      desc: "Guest speaker panels featuring senior engineers and AI researchers discussing LLMs, agentic coders, and standard prompt engineering."
-    },
-    {
-      id: 4,
-      title: "Sarvadnya Vidyapeeth BBA Business Pitch Challenge",
-      date: "October 03, 2026",
-      time: "01:30 PM – 05:30 PM",
-      venue: "Main Conference Room B",
-      category: "Management",
-      icon: <Trophy className="w-5 h-5 text-indigo-500" />,
-      desc: "Incubator pitch round where student startups present business plans to venture capitalists and regional industry leaders."
-    }
-  ];
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "events"));
+        const list = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.status === "Upcoming") {
+            list.push({ id: doc.id, ...data });
+          }
+        });
+        if (list.length > 0) {
+          setUpcomingEvents(list);
+        } else {
+          setUpcomingEvents(DEFAULT_UPCOMING_EVENTS);
+        }
+      } catch (err) {
+        console.error("Failed to load events:", err);
+        setUpcomingEvents(DEFAULT_UPCOMING_EVENTS);
+      }
+    };
+    fetchEvents();
+  }, []);
 
   const pastEvents = [
     { title: "Graduation Day 2025", date: "Nov 2025", image: "/images/graduation_day.png", tag: "Convocation" },
@@ -106,7 +144,7 @@ export default function EventsPage() {
       {/* ─── Tabs & Main Display ─── */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-6">
-          
+
           {/* Section Title and Tabs */}
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
             <div>
@@ -122,22 +160,20 @@ export default function EventsPage() {
             <div className="flex gap-1.5 bg-purple-100/50 p-1.5 rounded-xl border border-purple-100/50 self-start md:self-auto">
               <button
                 onClick={() => setActiveTab("upcoming")}
-                className={`flex items-center gap-2 px-5 py-2 rounded-lg text-xs md:text-sm font-black transition-all ${
-                  activeTab === "upcoming"
+                className={`flex items-center gap-2 px-5 py-2 rounded-lg text-xs md:text-sm font-black transition-all ${activeTab === "upcoming"
                     ? "bg-purple-600 text-white shadow-md"
                     : "text-slate-650 hover:text-purple-650"
-                }`}
+                  }`}
               >
                 <Calendar className="w-3.5 h-3.5" />
                 Upcoming
               </button>
               <button
                 onClick={() => setActiveTab("past")}
-                className={`flex items-center gap-2 px-5 py-2 rounded-lg text-xs md:text-sm font-black transition-all ${
-                  activeTab === "past"
+                className={`flex items-center gap-2 px-5 py-2 rounded-lg text-xs md:text-sm font-black transition-all ${activeTab === "past"
                     ? "bg-purple-600 text-white shadow-md"
                     : "text-slate-650 hover:text-purple-650"
-                }`}
+                  }`}
               >
                 <Camera className="w-3.5 h-3.5" />
                 Past Memories
@@ -150,14 +186,14 @@ export default function EventsPage() {
             <FadeIn>
               <div className="grid md:grid-cols-2 gap-8">
                 {upcomingEvents.map((event) => (
-                  <div 
+                  <div
                     key={event.id}
                     className="bg-white rounded-3xl p-6 border border-slate-100 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between"
                   >
                     <div>
                       {/* Top Row: Category and Date Tag */}
                       <div className="flex items-center justify-between mb-4">
-                        <span className="bg-purple-50 text-purple-750 border border-purple-100 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider">
+                        <span className="bg-purple-50 text-purple-755 border border-purple-100 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider">
                           {event.category}
                         </span>
                         <span className="text-[10px] font-black text-amber-600 bg-amber-50 border border-amber-100/50 px-2.5 py-1 rounded-full uppercase tracking-wider">
@@ -168,7 +204,7 @@ export default function EventsPage() {
                       {/* Header */}
                       <div className="flex items-start gap-4 mb-4">
                         <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center flex-shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-300">
-                          {event.icon}
+                          {getCategoryIcon(event.category)}
                         </div>
                         <div>
                           <h3 className="font-heading font-black text-slate-800 text-base md:text-lg leading-snug group-hover:text-purple-650 transition-colors">
@@ -208,13 +244,13 @@ export default function EventsPage() {
             <FadeIn>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {pastEvents.map((item, idx) => (
-                  <div 
+                  <div
                     key={idx}
                     className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between"
                   >
                     <div className="aspect-[4/3] overflow-hidden bg-slate-100 relative">
-                      <img 
-                        src={item.image} 
+                      <img
+                        src={item.image}
                         alt={item.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"
