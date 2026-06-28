@@ -29,7 +29,7 @@ export default function HeroButtons() {
           to="/admission"
           className="block w-full sm:w-auto text-center px-7 py-3 bg-purple-100 hover:bg-purple-200 text-purple-900 border border-purple-200/60 font-bold text-xs uppercase tracking-wider rounded-full transition-all duration-300 shadow-md hover:shadow-lg"
         >
-          Student Credit Card
+          Bihar Student Credit Card
         </Link>
       </motion.div>
     </div>
