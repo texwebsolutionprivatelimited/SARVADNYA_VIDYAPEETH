@@ -23,7 +23,7 @@ const cardHover = {
 export default function AboutPage() {
   return (
     <div className="bg-slate-50 min-h-screen pt-16 font-sans overflow-hidden">
-      
+
       {/* 1. FOUNDER & CHAIRMAN'S MESSAGE (FIRST SECTION WITH STANDARD SECTION HEADING) */}
       <section className="pb-16 pt-16 bg-white relative">
         {/* Decorative background glow blobs */}
@@ -42,23 +42,23 @@ export default function AboutPage() {
           <div className="bg-white/80 border border-purple-100/80 rounded-3xl p-8 md:p-12 shadow-xl backdrop-blur-md text-left max-w-7xl mx-auto relative overflow-hidden mt-8">
             <div className="absolute top-0 right-0 w-32 h-32 bg-purple-100/5 rounded-bl-full pointer-events-none" />
             <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-center">
-              
+
               {/* Leader Image & Title on left (4 cols) with unique gallery frame */}
               <div className="md:col-span-4 text-center space-y-5 pt-6 md:pt-8">
                 <div className="relative mx-auto w-44 h-60">
                   {/* Offset Gold dashed border */}
                   <div className="absolute -inset-1.5 border-2 border-dashed border-amber-400 rounded-2xl translate-x-2.5 translate-y-2.5 opacity-60" />
-                  
+
                   {/* Photo container */}
                   <div className="relative w-44 h-60 rounded-2xl overflow-hidden shadow-lg border-2 border-purple-100/50 bg-slate-100 z-10">
-                    <img 
-                      src="/images/dr_bhuleshwar.jpg" 
-                      alt="Dr. Bhuleshwar Patel" 
+                    <img
+                      src="/images/dr_bhuleshwar.jpg"
+                      alt="Dr. Bhuleshwar Patel"
                       className="w-full h-full object-cover object-[center_12%] hover:scale-105 transition-transform duration-500"
                     />
                   </div>
                 </div>
-                
+
                 <div className="pt-2">
                   <h4 className="font-extrabold text-slate-900 text-lg leading-tight">Dr. Bhuleshwar Patel</h4>
                   <div className="mt-1.5 mb-1">
@@ -93,7 +93,7 @@ export default function AboutPage() {
                       "We are living in the age of quantum jump of knowledge. The rapid pace of development of our country has provided tremendous opportunities for the young minds to achieve new heights. Sarvadnya Vidyapeeth is the ultimate place to flourish the multidimensional talents of students through academic and extra-academic activities."
                     </p>
                   </div>
-                  
+
                   <div className="text-slate-655 text-xs sm:text-sm leading-relaxed space-y-3 font-normal">
                     <p>
                       Dr. Bhuleshwar Patel is a visionary, philanthropist, and social worker who has been working in the fields of rural livelihood, women empowerment, and the upliftment of backward classes and BPL families through quality and sustainable education.
@@ -134,13 +134,13 @@ export default function AboutPage() {
             <div className="lg:col-span-5 text-left space-y-6">
               <div className="bg-white border border-purple-100 rounded-3xl p-6 md:p-8 shadow-md relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-purple-150/10 rounded-bl-full pointer-events-none" />
-                
+
                 {/* Tintern Trust Header */}
                 <div className="flex items-center gap-4 mb-6 pb-4 border-b border-purple-100/60">
                   <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center p-1 shadow-sm border border-purple-100 flex-shrink-0 overflow-hidden">
-                    <img 
-                      src="/images/tintern_logo.jpg" 
-                      alt="Tintern Charitable Trust Logo" 
+                    <img
+                      src="/images/silvassa.webp"
+                      alt="Tintern Charitable Trust Logo"
                       className="w-full h-full object-contain"
                     />
                   </div>
@@ -181,7 +181,7 @@ export default function AboutPage() {
                 <span className="text-purple-600 text-xs font-black uppercase tracking-widest font-heading">Who We Are</span>
               </div>
               <h2 className="text-3xl font-black text-slate-900 leading-tight">About Sarvadnya Vidyapeeth</h2>
-              
+
               <div className="text-slate-650 space-y-4 text-sm md:text-base leading-relaxed font-normal">
                 <p>
                   Sarvadnya Vidyapeeth was established under the aegis of <strong>Tintern Charitable Trust</strong> with the objective of creating a strong educational platform where students can gain not only academic knowledge but also practical skills required in today's competitive world.
@@ -378,7 +378,7 @@ export default function AboutPage() {
               <p className="text-slate-550 text-xs sm:text-sm leading-relaxed font-normal">
                 Our support desk is dedicated to assisting students at every step. Feel free to contact our counsellors for guidance on course structures, credit schemes, or admissions.
               </p>
-              
+
               <div className="grid sm:grid-cols-2 gap-4">
                 {[
                   { text: "Admission Counselling", icon: <Users size={16} /> },
@@ -411,7 +411,7 @@ export default function AboutPage() {
                     <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
                       <Phone size={14} className="text-amber-400" />
                     </div>
-                    <span>+91 9955330733 / 7282831934</span>
+                    <span>+91 7091320235 / +91 6205431678</span>
                   </div>
                   <a href="mailto:info@sarvadnyavidyapeeth.in" className="flex items-center gap-3 hover:text-amber-400 transition-colors">
                     <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
