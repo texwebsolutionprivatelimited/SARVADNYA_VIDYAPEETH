@@ -104,6 +104,19 @@ export function doc(dbOrCol, pathOrId, id) {
   }
 }
 
+// Notification handler for reactive listeners
+function _notifyCollectionChange(collectionName) {
+  if (window._mock_firestore_listeners?.[collectionName]) {
+    window._mock_firestore_listeners[collectionName].forEach((cb) => {
+      try {
+        cb();
+      } catch (e) {
+        console.error("Callback error:", e);
+      }
+    });
+  }
+}
+
 export async function getDocs(collectionRef) {
   const collectionName = collectionRef.path;
   const items = JSON.parse(localStorage.getItem(`mock_firestore_${collectionName}`) || "[]");
@@ -122,6 +135,7 @@ export async function addDoc(collectionRef, data) {
   items.push(newItem);
   
   localStorage.setItem(`mock_firestore_${collectionName}`, JSON.stringify(items));
+  _notifyCollectionChange(collectionName);
   return { id: newId };
 }
 
@@ -137,6 +151,7 @@ export async function updateDoc(docRef, data) {
   });
   
   localStorage.setItem(`mock_firestore_${collectionName}`, JSON.stringify(updatedItems));
+  _notifyCollectionChange(collectionName);
 }
 
 export async function deleteDoc(docRef) {
@@ -146,6 +161,53 @@ export async function deleteDoc(docRef) {
   const updatedItems = items.filter((item) => String(item.id) !== String(docRef.id));
   
   localStorage.setItem(`mock_firestore_${collectionName}`, JSON.stringify(updatedItems));
+  _notifyCollectionChange(collectionName);
+}
+
+export function onSnapshot(collectionRef, callback) {
+  const collectionName = collectionRef.path;
+  
+  const getLatestData = () => {
+    const items = JSON.parse(localStorage.getItem(`mock_firestore_${collectionName}`) || "[]");
+    const docs = items.map((item) => new MockDocSnapshot(item.id, item));
+    return new MockQuerySnapshot(docs);
+  };
+
+  // Trigger callback immediately
+  setTimeout(() => {
+    callback(getLatestData());
+  }, 0);
+
+  // Storage listener for cross-tab updates
+  const handleStorageChange = (e) => {
+    if (e.key === `mock_firestore_${collectionName}`) {
+      callback(getLatestData());
+    }
+  };
+
+  window.addEventListener("storage", handleStorageChange);
+
+  // Local event listener registration
+  const listener = () => {
+    callback(getLatestData());
+  };
+
+  if (!window._mock_firestore_listeners) {
+    window._mock_firestore_listeners = {};
+  }
+  if (!window._mock_firestore_listeners[collectionName]) {
+    window._mock_firestore_listeners[collectionName] = [];
+  }
+  window._mock_firestore_listeners[collectionName].push(listener);
+
+  return () => {
+    window.removeEventListener("storage", handleStorageChange);
+    if (window._mock_firestore_listeners?.[collectionName]) {
+      window._mock_firestore_listeners[collectionName] = window._mock_firestore_listeners[collectionName].filter(
+        (l) => l !== listener
+      );
+    }
+  };
 }
 
 // Pass-through helpers for BlogManager query

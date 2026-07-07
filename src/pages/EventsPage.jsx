@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { db, collection, getDocs } from "../firebase";
+import { db, collection, getDocs, addDoc, onSnapshot } from "../firebase";
 import { FadeIn } from "../components/Animations";
 import SectionHeading from "../components/SectionHeading";
 import {
@@ -24,7 +24,10 @@ const DEFAULT_UPCOMING_EVENTS = [
     time: "09:00 AM (36 Hours Run)",
     venue: "Advanced Computer Labs & Seminar Hall",
     category: "Technical",
-    desc: "A national-level coding sprint bringing together student programmers to solve real-world industry and public-sector problems."
+    desc: "A national-level coding sprint bringing together student programmers to solve real-world industry and public-sector problems.",
+    image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400&h=250&fit=crop",
+    status: "Upcoming",
+    attendees: 120
   },
   {
     id: 2,
@@ -33,7 +36,10 @@ const DEFAULT_UPCOMING_EVENTS = [
     time: "10:00 AM onwards",
     venue: "Campus Main Ground & Auditorium",
     category: "Cultural",
-    desc: "Two days of high-energy music fests, street theater, choreography competitions, fashion parades, and student food kiosks."
+    desc: "Two days of high-energy music fests, street theater, choreography competitions, fashion parades, and student food kiosks.",
+    image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&h=250&fit=crop",
+    status: "Upcoming",
+    attendees: 500
   },
   {
     id: 3,
@@ -42,7 +48,10 @@ const DEFAULT_UPCOMING_EVENTS = [
     time: "10:30 AM – 04:00 PM",
     venue: "Central Auditorium",
     category: "Academic",
-    desc: "Guest speaker panels featuring senior engineers and AI researchers discussing LLMs, agentic coders, and standard prompt engineering."
+    desc: "Guest speaker panels featuring senior engineers and AI researchers discussing LLMs, agentic coders, and standard prompt engineering.",
+    image: "https://images.unsplash.com/photo-1591453089816-0fbb971b454c?w=400&h=250&fit=crop",
+    status: "Upcoming",
+    attendees: 200
   },
   {
     id: 4,
@@ -51,7 +60,10 @@ const DEFAULT_UPCOMING_EVENTS = [
     time: "01:30 PM – 05:30 PM",
     venue: "Main Conference Room B",
     category: "Management",
-    desc: "Incubator pitch round where student startups present business plans to venture capitalists and regional industry leaders."
+    desc: "Incubator pitch round where student startups present business plans to venture capitalists and regional industry leaders.",
+    image: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=400&h=250&fit=crop",
+    status: "Upcoming",
+    attendees: 60
   }
 ];
 
@@ -75,27 +87,44 @@ export default function EventsPage() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "events"));
-        const list = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          if (data.status === "Upcoming") {
-            list.push({ id: doc.id, ...data });
+    const unsubscribe = onSnapshot(collection(db, "events"), async (snapshot) => {
+      const list = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.status === "Upcoming") {
+          list.push({ id: doc.id, ...data });
+        }
+      });
+      
+      if (snapshot.docs.length === 0) {
+        // Database is empty, seed it asynchronously
+        try {
+          const seeded = [];
+          for (const item of DEFAULT_UPCOMING_EVENTS) {
+            const docRef = await addDoc(collection(db, "events"), {
+              title: item.title,
+              date: item.date,
+              time: item.time,
+              venue: item.venue,
+              category: item.category,
+              desc: item.desc,
+              image: item.image,
+              status: item.status,
+              attendees: item.attendees
+            });
+            seeded.push({ id: docRef.id, ...item });
           }
-        });
-        if (list.length > 0) {
-          setUpcomingEvents(list);
-        } else {
+          setUpcomingEvents(seeded.filter(e => e.status === "Upcoming"));
+        } catch (err) {
+          console.error("Failed to seed database:", err);
           setUpcomingEvents(DEFAULT_UPCOMING_EVENTS);
         }
-      } catch (err) {
-        console.error("Failed to load events:", err);
-        setUpcomingEvents(DEFAULT_UPCOMING_EVENTS);
+      } else {
+        setUpcomingEvents(list);
       }
-    };
-    fetchEvents();
+    });
+
+    return unsubscribe;
   }, []);
 
   const pastEvents = [
@@ -187,54 +216,68 @@ export default function EventsPage() {
                 {upcomingEvents.map((event) => (
                   <div
                     key={event.id}
-                    className="bg-white rounded-3xl p-6 border border-slate-100 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between"
+                    className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between"
                   >
                     <div>
-                      {/* Top Row: Category and Date Tag */}
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="bg-purple-50 text-purple-755 border border-purple-100 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider">
-                          {event.category}
-                        </span>
-                        <span className="text-[10px] font-black text-amber-600 bg-amber-50 border border-amber-100/50 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                          {event.date}
-                        </span>
-                      </div>
+                      {event.image && (
+                        <div className="h-48 w-full overflow-hidden bg-slate-100 relative">
+                          <img
+                            src={event.image}
+                            alt={event.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            loading="lazy"
+                          />
+                        </div>
+                      )}
+                      <div className="p-6">
+                        {/* Top Row: Category and Date Tag */}
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="bg-purple-50 text-purple-755 border border-purple-100 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wider">
+                            {event.category}
+                          </span>
+                          <span className="text-[10px] font-black text-amber-600 bg-amber-50 border border-amber-100/50 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                            {event.date}
+                          </span>
+                        </div>
 
-                      {/* Header */}
-                      <div className="flex items-start gap-4 mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center flex-shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-300">
-                          {getCategoryIcon(event.category)}
+                        {/* Header */}
+                        <div className="flex items-start gap-4 mb-4">
+                          <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center flex-shrink-0 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                            {getCategoryIcon(event.category)}
+                          </div>
+                          <div>
+                            <h3 className="font-heading font-black text-slate-800 text-base md:text-lg leading-snug group-hover:text-purple-650 transition-colors">
+                              {event.title}
+                            </h3>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-heading font-black text-slate-800 text-base md:text-lg leading-snug group-hover:text-purple-650 transition-colors">
-                            {event.title}
-                          </h3>
-                        </div>
-                      </div>
 
-                      {/* Detail specs */}
-                      <div className="space-y-2 text-xs font-bold text-slate-500 mb-6 pl-1">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-purple-600 flex-shrink-0" />
-                          <span>Venue: {event.venue}</span>
+                        {/* Detail specs */}
+                        <div className="space-y-2 text-xs font-bold text-slate-500 mb-6 pl-1">
+                          <div className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                            <span>Venue: {event.venue}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                            <span>Timing: {event.time}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-purple-600 flex-shrink-0" />
-                          <span>Timing: {event.time}</span>
-                        </div>
-                      </div>
 
-                      {/* Description */}
-                      <p className="text-slate-500 text-xs md:text-[12.5px] leading-relaxed font-semibold mb-6 pl-1">
-                        {event.desc}
-                      </p>
+                        {/* Description */}
+                        <p className="text-slate-500 text-xs md:text-[12.5px] leading-relaxed font-semibold mb-6 pl-1">
+                          {event.desc}
+                        </p>
+                      </div>
                     </div>
 
-                    {/* Action Button */}
-                    <button className="flex items-center justify-center gap-1.5 w-full bg-purple-600 hover:bg-purple-700 text-white font-black text-xs uppercase tracking-widest py-3.5 rounded-xl transition-all shadow-md">
-                      Register For Event
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
+                    <div className="px-6 pb-6">
+                      {/* Action Button */}
+                      <button className="flex items-center justify-center gap-1.5 w-full bg-purple-600 hover:bg-purple-700 text-white font-black text-xs uppercase tracking-widest py-3.5 rounded-xl transition-all shadow-md">
+                        Register For Event
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

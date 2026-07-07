@@ -36,16 +36,19 @@ export default function AdminLayout() {
   const { pathname } = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMobileRange, setIsMobileRange] = useState(false);
 
   // Close mobile sidebar on route change
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
-  // Responsive: collapse sidebar on small screens
+  // Responsive: collapse sidebar on small screens & detect 320-768px range
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1024) {
+      const width = window.innerWidth;
+      setIsMobileRange(width >= 320 && width <= 768);
+      if (width < 1024) {
         setSidebarOpen(false);
       } else {
         setSidebarOpen(true);
@@ -62,6 +65,7 @@ export default function AdminLayout() {
   };
 
   const currentPage = SIDEBAR_ITEMS.find((item) => isActive(item.path));
+  const showFullSidebar = sidebarOpen || isMobileRange;
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
@@ -81,13 +85,13 @@ export default function AdminLayout() {
       {/* ─── Sidebar ─── */}
       <aside
         className={`fixed lg:static inset-y-0 left-0 z-50 flex flex-col transition-all duration-300 ease-in-out
-          ${sidebarOpen ? "w-64" : "w-20"}
+          ${showFullSidebar ? "w-64" : "w-20"}
           ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
           bg-gradient-to-b from-purple-950 via-[#1a0a30] to-indigo-950 shadow-2xl shadow-purple-900/30`}
       >
         {/* Sidebar Header */}
-        <div className={`flex items-center ${sidebarOpen ? "justify-between" : "justify-center"} p-4 border-b border-purple-800/40`}>
-          {sidebarOpen && (
+        <div className={`flex items-center ${showFullSidebar ? "justify-between" : "justify-center"} p-4 border-b border-purple-800/40`}>
+          {showFullSidebar && (
             <Link to="/" className="flex items-center gap-2.5 group">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-amber-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
                 <Shield className="w-5 h-5 text-white" />
@@ -102,7 +106,7 @@ export default function AdminLayout() {
               </div>
             </Link>
           )}
-          {!sidebarOpen && (
+          {!showFullSidebar && (
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-amber-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
               <Shield className="w-5 h-5 text-white" />
             </div>
@@ -129,12 +133,12 @@ export default function AdminLayout() {
                     ? "bg-gradient-to-r from-purple-600/90 to-indigo-600/90 text-white shadow-lg shadow-purple-600/25 border border-purple-500/30"
                     : "text-purple-200/70 hover:text-white hover:bg-purple-800/40 border border-transparent"
                   }
-                  ${!sidebarOpen ? "justify-center px-0" : ""}`}
-                title={!sidebarOpen ? item.label : undefined}
+                  ${!showFullSidebar ? "justify-center px-0" : ""}`}
+                title={!showFullSidebar ? item.label : undefined}
               >
                 <Icon className={`w-[18px] h-[18px] flex-shrink-0 transition-colors ${active ? "text-white" : "text-purple-400 group-hover:text-purple-200"}`} />
-                {sidebarOpen && <span className="truncate">{item.label}</span>}
-                {active && sidebarOpen && (
+                {showFullSidebar && <span className="truncate">{item.label}</span>}
+                {active && showFullSidebar && (
                   <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50" />
                 )}
               </Link>
@@ -143,22 +147,24 @@ export default function AdminLayout() {
         </nav>
 
         {/* Sidebar Footer */}
-        <div className={`p-3 border-t border-purple-800/40 space-y-1 ${!sidebarOpen ? "flex flex-col items-center" : ""}`}>
-          <Link
-            to="/"
-            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[12px] font-semibold text-purple-300/70 hover:text-white hover:bg-purple-800/40 transition-all duration-200 ${!sidebarOpen ? "justify-center px-0" : ""}`}
-            title="Back to Website"
-          >
-            <Home className="w-[16px] h-[16px] flex-shrink-0" />
-            {sidebarOpen && <span>Back to Website</span>}
-          </Link>
+        <div className={`p-3 border-t border-purple-800/40 space-y-1 ${!showFullSidebar ? "flex flex-col items-center" : ""}`}>
+          {!isMobileRange && (
+            <Link
+              to="/"
+              className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[12px] font-semibold text-purple-300/70 hover:text-white hover:bg-purple-800/40 transition-all duration-200 ${!showFullSidebar ? "justify-center px-0" : ""}`}
+              title="Back to Website"
+            >
+              <Home className="w-[16px] h-[16px] flex-shrink-0" />
+              {showFullSidebar && <span>Back to Website</span>}
+            </Link>
+          )}
           <button
             onClick={() => signOut(auth)}
-            className={`flex items-center gap-3 w-full px-3 py-2 rounded-xl text-[12px] font-semibold text-purple-300/70 hover:text-red-300 hover:bg-red-900/20 transition-all duration-200 ${!sidebarOpen ? "justify-center px-0" : ""}`}
+            className={`flex items-center gap-3 w-full px-3 py-2 rounded-xl text-[12px] font-semibold text-purple-300/70 hover:text-red-300 hover:bg-red-900/20 transition-all duration-200 ${!showFullSidebar ? "justify-center px-0" : ""}`}
             title="Sign Out"
           >
             <LogOut className="w-[16px] h-[16px] flex-shrink-0" />
-            {sidebarOpen && <span>Sign Out</span>}
+            {showFullSidebar && <span>Sign Out</span>}
           </button>
         </div>
       </aside>

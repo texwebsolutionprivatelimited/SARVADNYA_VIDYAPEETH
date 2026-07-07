@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -11,16 +11,18 @@ import {
   Clock,
   Users,
   Filter,
+  Upload,
+  ImagePlus,
 } from "lucide-react";
-import { db, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "../../firebase";
+import { db, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "../../firebase";
 
 const INITIAL_EVENTS = [
-  { id: 1, title: "Vidya-Tech National Hackathon 2026", date: "Jul 15 – 16, 2026", time: "09:00 AM", venue: "Computer Labs & Seminar Hall", category: "Technical", status: "Upcoming", attendees: 120 },
-  { id: 2, title: "Tarang 2026: Annual Cultural Carnival", date: "Aug 05 – 06, 2026", time: "10:00 AM", venue: "Campus Main Ground", category: "Cultural", status: "Upcoming", attendees: 500 },
-  { id: 3, title: "National Seminar: Generative AI", date: "Sep 12, 2026", time: "10:30 AM", venue: "Central Auditorium", category: "Academic", status: "Upcoming", attendees: 200 },
-  { id: 4, title: "BBA Business Pitch Challenge", date: "Oct 03, 2026", time: "01:30 PM", venue: "Conference Room B", category: "Management", status: "Upcoming", attendees: 60 },
-  { id: 5, title: "Freshers Welcome Party 2025", date: "Aug 20, 2025", time: "04:00 PM", venue: "Auditorium", category: "Cultural", status: "Completed", attendees: 350 },
-  { id: 6, title: "Annual Sports Meet 2025", date: "Nov 15, 2025", time: "07:00 AM", venue: "Sports Ground", category: "Sports", status: "Completed", attendees: 400 },
+  { id: 1, title: "Vidya-Tech National Hackathon 2026", date: "Jul 15 – 16, 2026", time: "09:00 AM", venue: "Computer Labs & Seminar Hall", category: "Technical", status: "Upcoming", attendees: 120, image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400&h=250&fit=crop", desc: "A national-level coding sprint bringing together student programmers to solve real-world industry and public-sector problems." },
+  { id: 2, title: "Tarang 2026: Annual Cultural Carnival", date: "Aug 05 – 06, 2026", time: "10:00 AM", venue: "Campus Main Ground", category: "Cultural", status: "Upcoming", attendees: 500, image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&h=250&fit=crop", desc: "Two days of high-energy music fests, street theater, choreography competitions, fashion parades, and student food kiosks." },
+  { id: 3, title: "National Seminar: Generative AI", date: "Sep 12, 2026", time: "10:30 AM", venue: "Central Auditorium", category: "Academic", status: "Upcoming", attendees: 200, image: "https://images.unsplash.com/photo-1591453089816-0fbb971b454c?w=400&h=250&fit=crop", desc: "Guest speaker panels featuring senior engineers and AI researchers discussing LLMs, agentic coders, and standard prompt engineering." },
+  { id: 4, title: "BBA Business Pitch Challenge", date: "Oct 03, 2026", time: "01:30 PM", venue: "Conference Room B", category: "Management", status: "Upcoming", attendees: 60, image: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=400&h=250&fit=crop", desc: "Incubator pitch round where student startups present business plans to venture capitalists and regional industry leaders." },
+  { id: 5, title: "Freshers Welcome Party 2025", date: "Aug 20, 2025", time: "04:00 PM", venue: "Auditorium", category: "Cultural", status: "Completed", attendees: 350, image: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=250&fit=crop", desc: "Freshers welcome party for the incoming batch of 2025 with performances and dinner." },
+  { id: 6, title: "Annual Sports Meet 2025", date: "Nov 15, 2025", time: "07:00 AM", venue: "Sports Ground", category: "Sports", status: "Completed", attendees: 400, image: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&h=250&fit=crop", desc: "Annual sports tournaments featuring track events, football, cricket, basketball, and indoor games." },
 ];
 
 const STATUS_STYLES = {
@@ -56,17 +58,20 @@ export default function EventManager() {
   const [filter, setFilter] = useState("All");
   const [showModal, setShowModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
-  const [form, setForm] = useState({ title: "", date: "", time: "", venue: "", category: "Technical", status: "Upcoming", attendees: "" });
+  const [form, setForm] = useState({ title: "", date: "", time: "", venue: "", category: "Technical", status: "Upcoming", attendees: "", image: null, desc: "" });
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "events"));
-        const list = [];
-        querySnapshot.forEach((doc) => {
-          list.push({ id: doc.id, ...doc.data() });
-        });
-        if (list.length === 0) {
+    const unsubscribe = onSnapshot(collection(db, "events"), async (snapshot) => {
+      const list = [];
+      snapshot.forEach((doc) => {
+        list.push({ id: doc.id, ...doc.data() });
+      });
+      
+      if (snapshot.docs.length === 0) {
+        // Seed the database with the default events when it's empty
+        try {
           const seeded = [];
           for (const item of INITIAL_EVENTS) {
             const docRef = await addDoc(collection(db, "events"), {
@@ -77,18 +82,22 @@ export default function EventManager() {
               category: item.category,
               status: item.status,
               attendees: item.attendees,
+              image: item.image || null,
+              desc: item.desc || "",
             });
             seeded.push({ id: docRef.id, ...item });
           }
           setEvents(seeded);
-        } else {
-          setEvents(list);
+        } catch (err) {
+          console.error("Failed to seed database in admin:", err);
+          setEvents(INITIAL_EVENTS);
         }
-      } catch (err) {
-        console.error("Firestore error:", err);
+      } else {
+        setEvents(list);
       }
-    };
-    fetchEvents();
+    });
+
+    return unsubscribe;
   }, []);
 
   const FILTERS = ["All", "Upcoming", "Completed"];
@@ -101,14 +110,51 @@ export default function EventManager() {
 
   const openAdd = () => {
     setEditingEvent(null);
-    setForm({ title: "", date: "", time: "", venue: "", category: "Technical", status: "Upcoming", attendees: "" });
+    setForm({ title: "", date: "", time: "", venue: "", category: "Technical", status: "Upcoming", attendees: "", image: null, desc: "" });
     setShowModal(true);
   };
 
   const openEdit = (event) => {
     setEditingEvent(event);
-    setForm({ title: event.title, date: event.date, time: event.time, venue: event.venue, category: event.category, status: event.status, attendees: String(event.attendees) });
+    setForm({ title: event.title, date: event.date, time: event.time, venue: event.venue, category: event.category, status: event.status, attendees: String(event.attendees), image: event.image || null, desc: event.desc || "" });
     setShowModal(true);
+  };
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => setForm((prev) => ({ ...prev, image: reader.result }));
+        reader.readAsDataURL(file);
+      }
+    }
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => setForm((prev) => ({ ...prev, image: reader.result }));
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setForm((prev) => ({ ...prev, image: null }));
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSave = async () => {
@@ -193,6 +239,12 @@ export default function EventManager() {
           >
             {/* Color bar */}
             <div className={`h-1.5 bg-gradient-to-r ${CATEGORY_COLORS[event.category] || "from-slate-400 to-slate-500"}`} />
+
+            {event.image && (
+              <div className="h-40 w-full overflow-hidden border-b border-purple-50">
+                <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              </div>
+            )}
 
             <div className="p-5">
               <div className="flex items-start justify-between mb-3">
@@ -315,6 +367,50 @@ export default function EventManager() {
                   <label className="block text-[11px] font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Expected Attendees</label>
                   <input type="number" value={form.attendees} onChange={(e) => setForm({ ...form, attendees: e.target.value })} placeholder="e.g. 200"
                     className="w-full px-4 py-2.5 rounded-xl border border-purple-100 text-[13px] font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400/40 focus:border-purple-300 transition-all" />
+                </div>
+                {/* Event Cover Image Upload */}
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Event Cover Image</label>
+                  {form.image ? (
+                    <div className="relative rounded-xl overflow-hidden border border-purple-100 group">
+                      <img src={form.image} alt="Event cover preview" className="w-full h-32 object-cover" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <button type="button" onClick={() => fileInputRef.current?.click()} className="px-3 py-1.5 rounded-lg bg-white/90 text-[11px] font-bold text-slate-700 hover:bg-white transition-colors">Change</button>
+                        <button type="button" onClick={removeImage} className="px-3 py-1.5 rounded-lg bg-red-500/90 text-[11px] font-bold text-white hover:bg-red-600 transition-colors">Remove</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      onDragEnter={handleDrag}
+                      onDragLeave={handleDrag}
+                      onDragOver={handleDrag}
+                      onDrop={handleDrop}
+                      className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all duration-200
+                        ${dragActive ? "border-purple-400 bg-purple-50" : "border-purple-200 bg-purple-50/30 hover:bg-purple-50 hover:border-purple-300"}`}
+                    >
+                      <Upload className="w-6 h-6 text-purple-400 mx-auto mb-1.5" />
+                      <p className="text-[11px] font-bold text-slate-600">Drag & drop or click to upload cover image</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">JPG, PNG, WebP (Max 5MB)</p>
+                    </div>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Description</label>
+                  <textarea
+                    rows={3}
+                    value={form.desc}
+                    onChange={(e) => setForm({ ...form, desc: e.target.value })}
+                    placeholder="Event description..."
+                    className="w-full px-4 py-2.5 rounded-xl border border-purple-100 text-[13px] font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400/40 focus:border-purple-300 transition-all resize-none"
+                  />
                 </div>
               </div>
 
