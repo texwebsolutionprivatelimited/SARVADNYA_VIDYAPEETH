@@ -153,9 +153,9 @@ export default function Dashboard() {
               </div>
               <h3 className="text-[14px] font-extrabold text-slate-900 tracking-tight">Recent Activity</h3>
             </div>
-            <button className="text-[11px] font-bold text-purple-600 hover:text-purple-800 flex items-center gap-1 transition-colors">
+            <Link to="/adminpanel/notices" className="text-[11px] font-bold text-purple-600 hover:text-purple-800 flex items-center gap-1 transition-colors">
               View All <ArrowUpRight className="w-3 h-3" />
-            </button>
+            </Link>
           </div>
           <div className="space-y-3">
             {RECENT_ACTIVITY.map((activity, i) => {
