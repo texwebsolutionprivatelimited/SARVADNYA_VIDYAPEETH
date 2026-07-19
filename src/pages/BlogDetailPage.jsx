@@ -224,106 +224,65 @@ export default function BlogDetailPage() {
   const readTime = Math.max(2, Math.ceil(wordCount / 160));
 
   return (
-    <div className="bg-white min-h-screen pt-16 sm:pt-20">
-      {/* ── Clean Top Header Navigation ── */}
-      <div className="bg-white border-b border-slate-100 sticky top-16 z-30">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-purple-700 transition-colors uppercase tracking-wider group"
-          >
-            <ArrowLeft className="w-4 h-4 text-purple-600 group-hover:-translate-x-1 transition-transform" />
-            Back to Home
-          </Link>
-
-          <div className="flex items-center gap-2.5">
-            <button
-              onClick={() => setLiked(!liked)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all ${
-                liked
-                  ? "bg-rose-50 border-rose-200 text-rose-600"
-                  : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
-              }`}
-            >
-              <ThumbsUp className="w-3.5 h-3.5" />
-              {liked ? "Liked" : "Helpful"}
-            </button>
-            <button
-              onClick={handleCopyLink}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-[11px] font-bold transition-all"
-            >
-              {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-green-300" /> : <Share2 className="w-3.5 h-3.5" />}
-              {copied ? "Link Copied!" : "Share"}
-            </button>
-          </div>
-        </div>
+    <div className="bg-white min-h-screen pt-20 pb-20">
+      {/* ── Top Header Section (Matching 2nd Reference Image) ── */}
+      <div className="text-center pt-8 sm:pt-12 pb-8 sm:pb-10 px-4 max-w-4xl mx-auto">
+        <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest block mb-2">
+          {blog.category ? `${blog.category.toUpperCase()} ARTICLES` : "HEALTH ARTICLES"}
+        </span>
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-3 font-heading">
+          Sarvadnya Vidyapeeth Blog
+        </h1>
+        <p className="text-slate-500 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto font-normal">
+          Explore expert educational advice, career guidance, IT insights, placement strategies, and wellness articles written by Sarvadnya Vidyapeeth specialists.
+        </p>
       </div>
 
-      {/* ── Standalone Open Article Page (Unboxed, Pure Open Flow) ── */}
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-        {/* 1. UPLOADED IMAGE (At top of article) */}
+      {/* ── Standalone Open Article Page (Unboxed, Pure Open Page like 2nd Image) ── */}
+      <main className="max-w-3xl mx-auto px-4 sm:px-6">
+        {/* 1. UPLOADED FEATURED IMAGE */}
         {blog.image && (
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="mb-8 overflow-hidden rounded-2xl"
+            className="mb-6 overflow-hidden rounded-2xl"
           >
             <img
               src={blog.image}
               alt={blog.title}
-              className="w-full h-auto max-h-[460px] object-cover rounded-2xl shadow-sm"
+              className="w-full h-auto max-h-[460px] object-cover rounded-2xl"
             />
           </motion.div>
         )}
 
-        {/* 2. HEADING (Just below the image) */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="mb-8"
-        >
-          <div className="flex flex-wrap items-center gap-2.5 text-xs font-bold text-slate-500 mb-3">
-            <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-[11px] uppercase tracking-wider font-black">
-              {blog.category || "General"}
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5 text-purple-600" />
-              {blog.date || "June 2026"}
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-purple-600" />
-              {readTime} min read
-            </span>
-          </div>
+        {/* 2. DATE */}
+        <p className="text-xs sm:text-sm text-slate-400 font-normal mb-2">
+          {blog.date || "July 15, 2026"}
+        </p>
 
-          <h1 className="text-3xl sm:text-4.5xl font-black text-slate-900 tracking-tight leading-tight font-heading">
-            {blog.title}
-          </h1>
-        </motion.div>
+        {/* 3. ARTICLE TITLE */}
+        <h2 className="text-2xl sm:text-3.5xl font-bold text-slate-900 tracking-tight leading-snug mb-2 font-heading">
+          {blog.title}
+        </h2>
 
-        {/* Excerpt Quote Callout if available */}
+        {/* 4. SUBTITLE / EXCERPT */}
         {blog.excerpt && (
-          <div className="pl-5 border-l-4 border-purple-600 mb-10 py-1">
-            <p className="text-lg font-semibold text-slate-700 italic leading-relaxed font-serif">
-              "{blog.excerpt}"
-            </p>
-          </div>
+          <p className="text-slate-500 text-sm sm:text-base font-normal leading-relaxed mb-8">
+            {blog.excerpt}
+          </p>
         )}
 
-        {/* 3. CONTENT (The full article text/body flowing naturally) */}
-        <div className="text-slate-800 text-base sm:text-lg leading-relaxed mb-12 font-sans">
+        {/* 5. CONTENT (The full article text/body flowing naturally) */}
+        <div className="text-slate-700 text-sm sm:text-base leading-relaxed mb-12 font-sans space-y-5">
           {blog.content ? (
             /<[a-z][\s\S]*>/i.test(blog.content) ? (
               <div
-                className="prose prose-purple max-w-none text-slate-800 text-base sm:text-lg leading-relaxed space-y-6"
+                className="prose prose-slate max-w-none text-slate-700 text-sm sm:text-base leading-relaxed space-y-4"
                 dangerouslySetInnerHTML={{ __html: blog.content }}
               />
             ) : (
-              <div className="space-y-6 text-slate-800 text-base sm:text-lg leading-relaxed">
+              <div className="space-y-4 text-slate-700 text-sm sm:text-base leading-relaxed">
                 {blog.content.split("\n\n").map((para, idx) => (
                   <p key={idx} className="mb-4 leading-relaxed">
                     {para.split("\n").map((line, lIdx) => (
@@ -337,50 +296,39 @@ export default function BlogDetailPage() {
               </div>
             )
           ) : (
-            <p className="text-slate-800 text-base sm:text-lg leading-relaxed">{blog.excerpt || blog.title}</p>
+            <p className="text-slate-700 text-sm sm:text-base leading-relaxed">{blog.excerpt || blog.title}</p>
           )}
         </div>
 
-        {/* 4. AT THE END: NAME OF THE AUTHOR */}
+        {/* 6. AT THE END: AUTHOR NAME SHOW */}
         <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-16">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-700 to-indigo-800 text-white font-black flex items-center justify-center text-lg shadow-sm">
-              {(blog.author || "Admin").charAt(0).toUpperCase()}
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-700 to-indigo-800 text-white font-bold flex items-center justify-center text-lg shadow-sm shrink-0">
+              {(blog.author || "Dr. Priya Sharma").charAt(0).toUpperCase()}
             </div>
             <div>
-              <p className="text-[10px] font-bold text-purple-700 uppercase tracking-widest mb-0.5">Written By Author</p>
-              <h4 className="text-base sm:text-lg font-black text-slate-900">{blog.author || "Sarvadnya Vidyapeeth Editorial Desk"}</h4>
-              <p className="text-xs text-slate-500 font-medium">Sarvadnya Vidyapeeth Patna</p>
+              <p className="text-[10px] font-bold text-purple-700 uppercase tracking-widest mb-0.5">Author</p>
+              <h4 className="text-base sm:text-lg font-extrabold text-slate-900">{blog.author || "Dr. Priya Sharma"}</h4>
+              <p className="text-xs text-slate-500 font-medium">Faculty & Academic Specialist, Sarvadnya Vidyapeeth</p>
             </div>
           </div>
-          <button
-            onClick={handleCopyLink}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs transition-colors"
-          >
-            <Share2 className="w-4 h-4" /> Share Article
-          </button>
-        </div>
-
-        {/* Admission CTA Banner */}
-        <div className="bg-gradient-to-r from-purple-900 to-indigo-950 text-white rounded-2xl p-6 sm:p-8 shadow-md mb-16">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 bg-amber-400/20 px-2.5 py-0.5 rounded-full inline-block mb-2">
-                Admissions Open 2026-27
-              </span>
-              <h3 className="text-lg font-extrabold text-white">Interested in Studying BCA or BBA at SV Patna?</h3>
-              <p className="text-xs text-purple-100 mt-1">Get 100% placement assistance and Bihar Student Credit Card guidance.</p>
-            </div>
-            <Link
-              to="/admission"
-              className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider whitespace-nowrap text-center"
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleCopyLink}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold transition-all cursor-pointer"
             >
-              Apply Online →
+              {copied ? "Link Copied!" : "Share Article"}
+            </button>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-purple-700 transition-colors uppercase tracking-wider"
+            >
+              <ArrowLeft className="w-4 h-4 text-purple-600" /> Back to Home
             </Link>
           </div>
         </div>
 
-        {/* ── Related Articles ── */}
+        {/* Related Articles */}
         {recentBlogs.length > 0 && (
           <section className="pt-8 border-t border-slate-200">
             <h3 className="text-xl font-black text-slate-900 mb-6 font-heading">More Articles to Read</h3>

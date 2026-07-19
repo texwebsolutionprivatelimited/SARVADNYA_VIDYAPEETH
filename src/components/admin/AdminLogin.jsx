@@ -71,13 +71,15 @@ export default function AdminLogin() {
         className="w-full max-w-md space-y-8 bg-white p-8 rounded-3xl border border-purple-100 shadow-xl shadow-purple-900/5"
       >
         <div className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-amber-500 shadow-md shadow-purple-500/20">
-            <Shield className="h-6 w-6 text-white" />
-          </div>
-          <h2 className="mt-6 text-2xl font-black text-slate-900 tracking-tight font-heading">
+          <img
+            src="/images/Logo/logo.webp"
+            alt="Sarvadnya Vidyapeeth Logo"
+            className="mx-auto w-14 h-14 object-contain rounded-full bg-white p-1 shadow-lg border border-purple-200"
+          />
+          <h2 className="mt-4 text-2xl font-black text-slate-900 tracking-tight font-heading">
             Admin Control Panel
           </h2>
-          <p className="mt-1.5 text-xs font-semibold text-slate-400 uppercase tracking-widest">
+          <p className="mt-1 text-xs font-semibold text-slate-400 uppercase tracking-widest">
             Sarvadnya Vidyapeeth
           </p>
         </div>
