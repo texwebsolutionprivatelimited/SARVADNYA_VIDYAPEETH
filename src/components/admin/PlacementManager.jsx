@@ -13,6 +13,8 @@ import {
   Building2,
   Upload,
   ImagePlus,
+  AlertTriangle,
+  HelpCircle,
 } from "lucide-react";
 import { db, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "../../firebase";
 
@@ -39,6 +41,8 @@ export default function PlacementManager() {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingPlacement, setEditingPlacement] = useState(null);
+  const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
+  const [confirmEditItem, setConfirmEditItem] = useState(null);
   const [form, setForm] = useState({ student: "", course: "BCA", company: "", role: "", package: "", year: "2026", status: "Placed", photo: null });
   const fileInputRef = useRef(null);
 
@@ -127,6 +131,26 @@ export default function PlacementManager() {
     } catch (err) {
       console.error("Failed to delete placement:", err);
     }
+  };
+
+  const handleConfirmEdit = (placement) => {
+    setConfirmEditItem(placement);
+  };
+
+  const executeEdit = () => {
+    if (!confirmEditItem) return;
+    openEdit(confirmEditItem);
+    setConfirmEditItem(null);
+  };
+
+  const handleConfirmDelete = (placement) => {
+    setConfirmDeleteItem(placement);
+  };
+
+  const executeDelete = async () => {
+    if (!confirmDeleteItem) return;
+    await handleDelete(confirmDeleteItem.id);
+    setConfirmDeleteItem(null);
   };
 
   // Stats
@@ -237,10 +261,10 @@ export default function PlacementManager() {
                   <td className="px-4 py-3.5 text-[11px] text-slate-500 font-medium hidden lg:table-cell">{p.year}</td>
                   <td className="px-4 py-3.5 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-purple-100 text-purple-500 transition-colors" title="Edit">
+                      <button onClick={() => handleConfirmEdit(p)} className="p-1.5 rounded-lg hover:bg-purple-100 text-purple-500 transition-colors" title="Edit Record">
                         <Edit3 className="w-3.5 h-3.5" />
                       </button>
-                      <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-lg hover:bg-red-100 text-red-500 transition-colors" title="Delete">
+                      <button onClick={() => handleConfirmDelete(p)} className="p-1.5 rounded-lg hover:bg-red-100 text-red-500 transition-colors" title="Delete Record">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -350,6 +374,94 @@ export default function PlacementManager() {
                 <button onClick={() => setShowModal(false)} className="px-4 py-2 rounded-xl border border-purple-200 text-[12px] font-bold text-slate-600 hover:bg-purple-50 transition-colors">Cancel</button>
                 <button onClick={handleSave} className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-700 text-white text-[12px] font-bold shadow-md shadow-purple-500/25 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
                   {editingPlacement ? "Update" : "Add Placement"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── Delete Confirmation Modal ─── */}
+      <AnimatePresence>
+        {confirmDeleteItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[110] flex items-center justify-center p-4"
+            onClick={() => setConfirmDeleteItem(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 border border-red-100 text-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4 border border-red-200 shadow-inner">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-extrabold text-slate-900 font-heading">Delete Placement Record</h3>
+              <p className="text-[13px] text-slate-600 mt-2 font-medium leading-relaxed">
+                Are you sure you want to delete the placement record for <span className="font-bold text-slate-900">"{confirmDeleteItem.student}"</span>? This action cannot be undone.
+              </p>
+              <div className="flex items-center justify-center gap-3 mt-6">
+                <button
+                  onClick={() => setConfirmDeleteItem(null)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-[12px] font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={executeDelete}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white text-[12px] font-bold shadow-md shadow-red-500/25 hover:shadow-lg hover:shadow-red-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                >
+                  Confirm Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── Edit Confirmation Modal ─── */}
+      <AnimatePresence>
+        {confirmEditItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[110] flex items-center justify-center p-4"
+            onClick={() => setConfirmEditItem(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 border border-purple-100 text-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mx-auto mb-4 border border-purple-200 shadow-inner">
+                <HelpCircle className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="text-lg font-extrabold text-slate-900 font-heading">Edit Placement Record</h3>
+              <p className="text-[13px] text-slate-600 mt-2 font-medium leading-relaxed">
+                Are you sure you want to edit the placement record for <span className="font-bold text-slate-900">"{confirmEditItem.student}"</span>?
+              </p>
+              <div className="flex items-center justify-center gap-3 mt-6">
+                <button
+                  onClick={() => setConfirmEditItem(null)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-[12px] font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={executeEdit}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-700 text-white text-[12px] font-bold shadow-md shadow-purple-500/25 hover:shadow-lg hover:shadow-purple-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                >
+                  Confirm & Edit
                 </button>
               </div>
             </motion.div>

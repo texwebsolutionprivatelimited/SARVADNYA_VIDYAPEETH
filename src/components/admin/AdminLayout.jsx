@@ -19,12 +19,13 @@ import {
   Shield,
   Home,
   Quote,
+  HelpCircle,
 } from "lucide-react";
 
 const SIDEBAR_ITEMS = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/adminpanel" },
   { label: "Blogs", icon: FileText, path: "/adminpanel/blogs" },
-  { label: "Brochures", icon: BookOpen, path: "/adminpanel/brochures" },
+  { label: "FAQs", icon: HelpCircle, path: "/adminpanel/faqs" },
   { label: "Events", icon: Calendar, path: "/adminpanel/events" },
   { label: "Enquiries", icon: MessageSquare, path: "/adminpanel/enquiries" },
   { label: "Gallery", icon: Image, path: "/adminpanel/gallery" },

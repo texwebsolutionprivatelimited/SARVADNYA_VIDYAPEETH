@@ -10,6 +10,7 @@ import {
   Grid3X3,
   Eye,
   MapPin,
+  AlertTriangle,
 } from "lucide-react";
 import { db, collection, addDoc, deleteDoc, doc, onSnapshot } from "../../firebase";
 
@@ -47,6 +48,7 @@ export default function GalleryManager() {
   const [activeAlbum, setActiveAlbum] = useState("All");
   const [showUpload, setShowUpload] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+  const [confirmDeleteItem, setConfirmDeleteItem] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [form, setForm] = useState({ title: "", album: "Campus Tour", postArea: "home" });
 
@@ -107,6 +109,16 @@ export default function GalleryManager() {
     } catch (err) {
       console.error("Failed to delete image:", err);
     }
+  };
+
+  const handleConfirmDelete = (img) => {
+    setConfirmDeleteItem(img);
+  };
+
+  const executeDelete = async () => {
+    if (!confirmDeleteItem) return;
+    await handleDelete(confirmDeleteItem.id);
+    setConfirmDeleteItem(null);
   };
 
   return (
@@ -175,7 +187,7 @@ export default function GalleryManager() {
                 <button onClick={() => setPreviewImage(img)} className="p-1 rounded-md bg-white/20 hover:bg-white/40 text-white transition-colors">
                   <Eye className="w-3 h-3" />
                 </button>
-                <button onClick={() => handleDelete(img.id)} className="p-1 rounded-md bg-red-500/60 hover:bg-red-500/90 text-white transition-colors">
+                <button onClick={() => handleConfirmDelete(img)} className="p-1 rounded-md bg-red-500/60 hover:bg-red-500/90 text-white transition-colors" title="Delete Image">
                   <Trash2 className="w-3 h-3" />
                 </button>
               </div>
@@ -323,6 +335,50 @@ export default function GalleryManager() {
                     ) : null;
                   })()}
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── Delete Confirmation Modal ─── */}
+      <AnimatePresence>
+        {confirmDeleteItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[110] flex items-center justify-center p-4"
+            onClick={() => setConfirmDeleteItem(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 border border-red-100 text-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4 border border-red-200 shadow-inner">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-extrabold text-slate-900 font-heading">Delete Photo</h3>
+              <p className="text-[13px] text-slate-600 mt-2 font-medium leading-relaxed">
+                Are you sure you want to delete <span className="font-bold text-slate-900">"{confirmDeleteItem.title}"</span>? This action cannot be undone.
+              </p>
+              <div className="flex items-center justify-center gap-3 mt-6">
+                <button
+                  onClick={() => setConfirmDeleteItem(null)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-[12px] font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={executeDelete}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white text-[12px] font-bold shadow-md shadow-red-500/25 hover:shadow-lg hover:shadow-red-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                >
+                  Confirm Delete
+                </button>
               </div>
             </motion.div>
           </motion.div>

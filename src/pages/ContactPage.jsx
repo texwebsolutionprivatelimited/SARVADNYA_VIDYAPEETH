@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { FadeIn } from "../components/Animations";
 import SectionHeading from "../components/SectionHeading";
+import FaqSection from "../components/common/FaqSection";
 
 export default function ContactPage() {
   // Tabs for different departments
@@ -510,59 +511,8 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* ─── FAQs Accordion Section ─── */}
-      <section className="bg-slate-100 border-t border-slate-200/60 py-16 md:py-20 flex-shrink-0">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <span className="flex items-center justify-center gap-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.25em] text-purple-700 mb-2">
-              <Info className="w-3.5 h-3.5" />
-              Got Questions?
-            </span>
-            <h2 className="font-heading text-2.5xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Frequently Asked Questions
-            </h2>
-          </div>
-
-          <div className="space-y-3">
-            {faqs.map((faq, i) => {
-              const isOpen = activeFaq === i;
-              return (
-                <div
-                  key={i}
-                  className="bg-white border border-slate-200/60 rounded-2xl overflow-hidden shadow-sm transition-all duration-300"
-                >
-                  <button
-                    onClick={() => setActiveFaq(isOpen ? null : i)}
-                    className="w-full flex items-center justify-between p-5 text-left font-bold text-slate-800 hover:text-purple-700 transition-colors gap-4"
-                  >
-                    <span className="text-xs sm:text-sm md:text-base">{faq.q}</span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-slate-400 transition-transform duration-300 flex-shrink-0 ${isOpen ? "rotate-180 text-purple-600" : ""
-                        }`}
-                    />
-                  </button>
-
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0 }}
-                        animate={{ height: "auto" }}
-                        exit={{ height: 0 }}
-                        transition={{ duration: 0.25, ease: "easeInOut" }}
-                        className="overflow-hidden"
-                      >
-                        <div className="p-5 pt-0 text-slate-550 text-xs md:text-sm leading-relaxed border-t border-slate-100">
-                          {faq.a}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      {/* ─── FAQs Section ─── */}
+      <FaqSection />
     </div>
   );
 }

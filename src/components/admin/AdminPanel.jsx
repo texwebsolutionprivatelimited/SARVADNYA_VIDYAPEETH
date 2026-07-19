@@ -5,7 +5,7 @@ import AdminLogin from "./AdminLogin";
 import AdminLayout from "./AdminLayout";
 import Dashboard from "./Dashboard";
 import BlogManager from "./BlogManager";
-import BrochureManager from "./BrochureManager";
+import FaqManager from "./FaqManager";
 import EventManager from "./EventManager";
 import EnquiryManager from "./EnquiryManager";
 import GalleryManager from "./GalleryManager";
@@ -52,7 +52,8 @@ export default function AdminPanel() {
       <Route element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="blogs" element={<BlogManager />} />
-        <Route path="brochures" element={<BrochureManager />} />
+        <Route path="faqs" element={<FaqManager />} />
+        <Route path="brochures" element={<Navigate to="/adminpanel/faqs" replace />} />
         <Route path="events" element={<EventManager />} />
         <Route path="enquiries" element={<EnquiryManager />} />
         <Route path="gallery" element={<GalleryManager />} />

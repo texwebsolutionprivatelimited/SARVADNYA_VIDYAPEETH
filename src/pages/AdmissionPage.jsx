@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { FadeIn } from "../components/Animations";
 import SectionHeading from "../components/SectionHeading";
+import FaqSection from "../components/common/FaqSection";
 
 export default function AdmissionPage() {
 
@@ -50,7 +51,7 @@ export default function AdmissionPage() {
 
   // 6 Admission Steps (Updated to User-provided list)
   const steps = [
-    { n: "01", title: "Submit Online/Offline Admission Form", desc: "Fill out our digital admissions enquiry form online or obtain a physical registration brochure at our Patna campus." },
+    { n: "01", title: "Submit Online/Offline Admission Form", desc: "Fill out our digital admissions enquiry form online or visit our Patna campus for personal counseling." },
     { n: "02", title: "Document Verification", desc: "Present your original academic certificates (Class 10th & 12th marksheets, certificates) to the counseling panel." },
     { n: "03", title: "Eligibility Confirmation", desc: "The academic evaluation desk validates candidate records against university qualification criteria." },
     { n: "04", title: "Fee Submission / DRCC Process", desc: "Deposit initial college fees to confirm registration or receive bonafide letters to apply for Bihar Student Credit Card." },
@@ -406,69 +407,7 @@ export default function AdmissionPage() {
           </div>
 
           {/* Admission FAQs Section */}
-          <div className="grid md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 mt-8 md:mt-10 text-left">
-
-            {/* General & Eligibility FAQs */}
-            <div className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-6 lg:p-8 space-y-4 sm:space-y-5 md:space-y-6">
-              <h4 className="font-heading font-black text-slate-900 text-sm sm:text-base md:text-lg flex items-center gap-2 sm:gap-2.5">
-                <div className="p-1.5 sm:p-2 bg-indigo-50 text-indigo-600 rounded-lg sm:rounded-xl flex-shrink-0">
-                  <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                General & Course Eligibility FAQs
-              </h4>
-
-              <div className="space-y-3 sm:space-y-4">
-                <div className="border-b border-slate-100 pb-3 sm:pb-4">
-                  <h5 className="font-extrabold text-[11px] sm:text-xs md:text-sm text-slate-800 mb-1 sm:mb-1.5">
-                    Q: What is the eligibility criteria for BCA & BBA?
-                  </h5>
-                  <p className="text-slate-500 text-[10px] sm:text-[11px] md:text-xs leading-relaxed font-semibold">
-                    For <strong className="text-slate-700">BCA</strong>, candidates must pass Class 12th with Mathematics or Computer Science. For <strong className="text-slate-700">BBA</strong>, candidates from any stream (Science, Commerce, or Arts) are eligible. A minimum of 45% aggregate marks is required.
-                  </p>
-                </div>
-
-                <div>
-                  <h5 className="font-extrabold text-[11px] sm:text-xs md:text-sm text-slate-800 mb-1 sm:mb-1.5">
-                    Q: What documents are required during direct admission?
-                  </h5>
-                  <p className="text-slate-500 text-[10px] sm:text-[11px] md:text-xs leading-relaxed font-semibold">
-                    You will need Class 10th and 12th marksheets, school passing certificates, migration certificate, transfer certificate (TC), character certificate, Aadhaar card, and 6 passport-size photographs.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Financial & Process FAQs */}
-            <div className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-6 lg:p-8 space-y-4 sm:space-y-5 md:space-y-6">
-              <h4 className="font-heading font-black text-slate-900 text-sm sm:text-base md:text-lg flex items-center gap-2 sm:gap-2.5">
-                <div className="p-1.5 sm:p-2 bg-purple-50 text-purple-600 rounded-lg sm:rounded-xl flex-shrink-0">
-                  <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                Process & BSCC Support FAQs
-              </h4>
-
-              <div className="space-y-3 sm:space-y-4">
-                <div className="border-b border-slate-100 pb-3 sm:pb-4">
-                  <h5 className="font-extrabold text-[11px] sm:text-xs md:text-sm text-slate-800 mb-1 sm:mb-1.5">
-                    Q: Does the college accept Bihar Student Credit Card (BSCC)?
-                  </h5>
-                  <p className="text-slate-500 text-[10px] sm:text-[11px] md:text-xs leading-relaxed font-semibold">
-                    Yes, we provide 100% assistance. Once your admission is registered, our desk issues the official Bonafide Admission Letter and Fee Estimate Sheet required for your DRCC office application.
-                  </p>
-                </div>
-
-                <div>
-                  <h5 className="font-extrabold text-[11px] sm:text-xs md:text-sm text-slate-800 mb-1 sm:mb-1.5">
-                    Q: Can I apply online or do I need to visit the campus?
-                  </h5>
-                  <p className="text-slate-500 text-[10px] sm:text-[11px] md:text-xs leading-relaxed font-semibold">
-                    Both options are available. You can fill out the online admission enquiry form on this portal, or visit our counseling desk at the Beur-Betaura Road campus, Patna, for face-to-face guidance.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-          </div>
+          <FaqSection className="mt-8 bg-slate-50 rounded-3xl" />
         </div>
       </section>
 
