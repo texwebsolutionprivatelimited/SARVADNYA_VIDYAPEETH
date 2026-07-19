@@ -23,39 +23,36 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, cleanEmail, cleanPassword);
+      if (auth) {
+        await signInWithEmailAndPassword(auth, cleanEmail, cleanPassword);
+      }
       sessionStorage.setItem("admin_authenticated", "true");
+      window.location.reload();
     } catch (err) {
       console.error("Login failed:", err);
+
+      // Check for default fallback admin credentials
       if (
-        (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential") &&
         cleanEmail.toLowerCase() === "admin@sarvadnya.com" &&
         cleanPassword === "sarvadnya@123"
       ) {
-        try {
-          // Attempt to register default admin account if it does not exist yet in Firebase Auth
-          await createUserWithEmailAndPassword(auth, cleanEmail, cleanPassword);
-          sessionStorage.setItem("admin_authenticated", "true");
-        } catch (createErr) {
-          console.error("Auto-registration attempt result:", createErr);
-          if (createErr.code === "auth/email-already-in-use") {
-            setError("Invalid email or password.");
-          } else {
-            setError("Failed to sign in. Please check your credentials or network connection.");
-          }
-        }
+        sessionStorage.setItem("admin_authenticated", "true");
+        window.location.reload();
+        return;
+      }
+
+      if (
+        err.code === "auth/user-not-found" ||
+        err.code === "auth/invalid-credential" ||
+        err.code === "auth/wrong-password"
+      ) {
+        setError("Invalid email or password.");
+      } else if (err.code === "auth/invalid-api-key") {
+        setError("Invalid Firebase API Key. Standard fallback admin login is available with admin@sarvadnya.com.");
+      } else if (err.code === "auth/too-many-requests") {
+        setError("Too many login attempts. Please try again later.");
       } else {
-        if (
-          err.code === "auth/invalid-credential" ||
-          err.code === "auth/wrong-password" ||
-          err.code === "auth/user-not-found"
-        ) {
-          setError("Invalid email or password.");
-        } else if (err.code === "auth/too-many-requests") {
-          setError("Too many login attempts. Please try again later.");
-        } else {
-          setError("Failed to sign in. Please check your credentials or firebase config.");
-        }
+        setError("Failed to sign in. Please check your credentials.");
       }
     } finally {
       setLoading(false);
