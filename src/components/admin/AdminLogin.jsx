@@ -12,7 +12,10 @@ export default function AdminLogin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) {
+    const cleanEmail = email.trim();
+    const cleanPassword = password.trim();
+
+    if (!cleanEmail || !cleanPassword) {
       setError("Please enter both email and password.");
       return;
     }
@@ -20,24 +23,33 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, cleanEmail, cleanPassword);
+      sessionStorage.setItem("admin_authenticated", "true");
     } catch (err) {
       console.error("Login failed:", err);
-      // Auto-create user if they are using the requested default credentials
       if (
         (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential") &&
-        email === "admin@gmail.com" &&
-        password === "admin@147"
+        cleanEmail.toLowerCase() === "admin@sarvadnya.com" &&
+        cleanPassword === "sarvadnya@123"
       ) {
         try {
-          // Attempt to register the admin account if it does not exist in the new Firebase project
-          await createUserWithEmailAndPassword(auth, email, password);
+          // Attempt to register default admin account if it does not exist yet in Firebase Auth
+          await createUserWithEmailAndPassword(auth, cleanEmail, cleanPassword);
+          sessionStorage.setItem("admin_authenticated", "true");
         } catch (createErr) {
-          console.error("Auto-registration failed:", createErr);
-          setError("Invalid admin credentials or connection error.");
+          console.error("Auto-registration attempt result:", createErr);
+          if (createErr.code === "auth/email-already-in-use") {
+            setError("Invalid email or password.");
+          } else {
+            setError("Failed to sign in. Please check your credentials or network connection.");
+          }
         }
       } else {
-        if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
+        if (
+          err.code === "auth/invalid-credential" ||
+          err.code === "auth/wrong-password" ||
+          err.code === "auth/user-not-found"
+        ) {
           setError("Invalid email or password.");
         } else if (err.code === "auth/too-many-requests") {
           setError("Too many login attempts. Please try again later.");
@@ -93,7 +105,7 @@ export default function AdminLogin() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@gmail.com"
+                placeholder="admin@sarvadnya.com"
                 disabled={loading}
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-purple-100 text-[13px] font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400/40 focus:border-purple-300 transition-all bg-slate-50/50"
               />

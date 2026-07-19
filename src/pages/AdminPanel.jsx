@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { auth, onAuthStateChanged } from "../firebase";
+import { auth, onAuthStateChanged, signOut } from "../firebase";
 import AdminLogin from "../components/admin/AdminLogin";
 import AdminLayout from "../components/admin/AdminLayout";
 import Dashboard from "../components/admin/Dashboard";
@@ -18,8 +18,17 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const isSessionActive = sessionStorage.getItem("admin_authenticated") === "true";
+    if (!isSessionActive && auth.currentUser) {
+      signOut(auth);
+    }
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+      const active = sessionStorage.getItem("admin_authenticated") === "true";
+      if (currentUser && active) {
+        setUser(currentUser);
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
     return () => unsubscribe();

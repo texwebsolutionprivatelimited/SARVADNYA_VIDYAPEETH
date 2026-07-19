@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  GraduationCap, Code, Building, ArrowRight, Award
+  GraduationCap, Code, Building, ArrowRight, Award, Bell, Pin
 } from "lucide-react";
 import Hero from "../components/Hero/Hero";
 import LifeAtSV from "../components/Hero/LifeAtSV";
@@ -12,12 +12,120 @@ import LatestBlogs from "../components/Hero/LatestBlogs";
 import Testimonials from "../components/Hero/Testimonials";
 import SectionHeading from "../components/SectionHeading";
 
+function NoticeBoard() {
+  const [notices, setNotices] = useState([]);
+
+  useEffect(() => {
+    const loadNotices = async () => {
+      try {
+        const { db, collection, onSnapshot, query } = await import("../firebase");
+        const q = query(collection(db, "notices"));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+          const list = [];
+          snapshot.forEach((doc) => {
+            list.push({ id: doc.id, ...doc.data() });
+          });
+          // Sort by pinned (true first), then by date descending
+          list.sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            return new Date(b.date || 0) - new Date(a.date || 0);
+          });
+          setNotices(list);
+        });
+        return unsubscribe;
+      } catch (err) {
+        console.error("Failed to set up notices listener:", err);
+      }
+    };
+
+    let unsub;
+    loadNotices().then((u) => {
+      unsub = u;
+    });
+    return () => {
+      if (unsub) unsub();
+    };
+  }, []);
+
+  if (notices.length === 0) return null;
+
+  return (
+    <section className="py-6 bg-gradient-to-r from-purple-900 via-indigo-950 to-purple-950 text-white relative overflow-hidden border-y border-purple-500/20">
+      {/* Background glow effects */}
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[25%_75%] gap-6 items-center">
+          {/* Header */}
+          <div className="flex items-center gap-3.5 border-b lg:border-b-0 lg:border-r border-white/10 pb-4 lg:pb-0 lg:pr-6">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center animate-bounce flex-shrink-0">
+              <Bell className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-black tracking-tight uppercase text-amber-400 font-heading">
+                Notice Board
+              </h3>
+              <p className="text-[10px] text-purple-200/80 font-extrabold uppercase tracking-wider mt-0.5">
+                Latest Announcements
+              </p>
+            </div>
+          </div>
+
+          {/* Notices Ticker / Horizontal Cards Grid */}
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-purple-500/30 scrollbar-track-transparent">
+            {notices.map((notice) => (
+              <div
+                key={notice.id}
+                className={`flex-shrink-0 w-[280px] sm:w-[310px] bg-white/5 backdrop-blur-md rounded-xl p-3.5 border transition-all duration-300 hover:bg-white/10 ${
+                  notice.pinned
+                    ? "border-amber-400/40 ring-1 ring-amber-400/10"
+                    : "border-white/10"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className={`text-[8.5px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                    notice.priority === "High"
+                      ? "bg-red-500/20 text-red-300 border border-red-500/30"
+                      : notice.priority === "Medium"
+                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                      : "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                  }`}>
+                    {notice.priority}
+                  </span>
+                  
+                  <div className="flex items-center gap-1.5">
+                    {notice.pinned && (
+                      <Pin className="w-3 h-3 text-amber-400 rotate-45" />
+                    )}
+                    <span className="text-[9.5px] text-purple-300 font-bold">{notice.date}</span>
+                  </div>
+                </div>
+
+                <h4 className="text-xs font-extrabold text-white mb-1 tracking-tight line-clamp-1">
+                  {notice.title}
+                </h4>
+                <p className="text-[10px] text-purple-200/70 font-semibold leading-relaxed line-clamp-2">
+                  {notice.content}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
   return (
     <div className="relative bg-white w-full">
       {/* 1. Hero Section */}
       <Hero />
+
+      {/* Notice Board announcements ticker */}
+      <NoticeBoard />
 
       {/* 2. Introduction Section (Directly under the wave curve) */}
       <section className="py-16 bg-white relative overflow-hidden text-slate-800">

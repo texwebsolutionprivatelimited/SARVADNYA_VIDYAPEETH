@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import SectionHeading from "../SectionHeading";
 
@@ -45,6 +45,42 @@ const itemVariants = {
 
 export default function OurGallery() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [galleryImages, setGalleryImages] = useState([]);
+
+  useEffect(() => {
+    const loadImages = async () => {
+      try {
+        const { db, collection, onSnapshot } = await import("../../firebase");
+        const unsubscribe = onSnapshot(collection(db, "gallery"), (snapshot) => {
+          const list = [];
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.postArea === "home" || data.album === "Campus Tour" || data.album === "Events" || data.album === "Cultural Fest") {
+              list.push({ img: data.src, title: data.title, tag: data.album });
+            }
+          });
+          if (list.length > 0) {
+            setGalleryImages(list);
+          } else {
+            setGalleryImages(MEMORIES);
+          }
+        });
+        return unsubscribe;
+      } catch (err) {
+        console.error("Failed to load gallery images:", err);
+      }
+    };
+
+    let unsub;
+    loadImages().then((u) => {
+      unsub = u;
+    });
+    return () => {
+      if (unsub) unsub();
+    };
+  }, []);
+
+  const itemsToRender = galleryImages.length > 0 ? galleryImages : MEMORIES;
 
   return (
     <section className="relative py-12 md:py-16 bg-slate-50 overflow-hidden border-t border-slate-200/60">
@@ -74,7 +110,7 @@ export default function OurGallery() {
           whileInView="visible"
           viewport={{ once: true, margin: "-40px" }}
         >
-          {MEMORIES.map((item, idx) => (
+          {itemsToRender.map((item, idx) => (
             <motion.div
               key={idx}
               variants={itemVariants}

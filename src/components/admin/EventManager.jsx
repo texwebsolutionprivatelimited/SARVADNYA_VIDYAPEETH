@@ -120,6 +120,36 @@ export default function EventManager() {
     setShowModal(true);
   };
 
+  // Compress an image file to a small base64 thumbnail so it fits in Firestore (<1MB doc limit)
+  const compressImage = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_SIZE = 400;
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > MAX_SIZE) { height = Math.round((height * MAX_SIZE) / width); width = MAX_SIZE; }
+          } else {
+            if (height > MAX_SIZE) { width = Math.round((width * MAX_SIZE) / height); height = MAX_SIZE; }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", 0.6));
+        };
+        img.onerror = reject;
+        img.src = reader.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -130,26 +160,32 @@ export default function EventManager() {
     }
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
       if (file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onloadend = () => setForm((prev) => ({ ...prev, image: reader.result }));
-        reader.readAsDataURL(file);
+        try {
+          const compressed = await compressImage(file);
+          setForm((prev) => ({ ...prev, image: compressed }));
+        } catch (err) {
+          console.error("Image compression failed:", err);
+        }
       }
     }
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => setForm((prev) => ({ ...prev, image: reader.result }));
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file);
+      setForm((prev) => ({ ...prev, image: compressed }));
+    } catch (err) {
+      console.error("Image compression failed:", err);
+    }
   };
 
   const removeImage = () => {
@@ -157,9 +193,16 @@ export default function EventManager() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const [saving, setSaving] = useState(false);
+
   const handleSave = async () => {
     if (!form.title.trim()) return;
+    setSaving(true);
     const dataToSave = { ...form, attendees: Number(form.attendees) || 0 };
+    // If image is still too large (>800KB base64), strip it to avoid Firestore limit
+    if (dataToSave.image && dataToSave.image.length > 800000) {
+      dataToSave.image = null;
+    }
     try {
       if (editingEvent) {
         const docRef = doc(db, "events", editingEvent.id);
@@ -172,6 +215,9 @@ export default function EventManager() {
       setShowModal(false);
     } catch (err) {
       console.error("Failed to save event:", err);
+      alert("Failed to save event. Please try again.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -416,8 +462,8 @@ export default function EventManager() {
 
               <div className="flex justify-end gap-3 mt-6">
                 <button onClick={() => setShowModal(false)} className="px-4 py-2 rounded-xl border border-purple-200 text-[12px] font-bold text-slate-600 hover:bg-purple-50 transition-colors">Cancel</button>
-                <button onClick={handleSave} className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-700 text-white text-[12px] font-bold shadow-md shadow-purple-500/25 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200">
-                  {editingEvent ? "Update Event" : "Create Event"}
+                <button onClick={handleSave} disabled={saving} className={`px-5 py-2 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-700 text-white text-[12px] font-bold shadow-md shadow-purple-500/25 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 ${saving ? "opacity-60 cursor-not-allowed" : ""}`}>
+                  {saving ? "Saving..." : editingEvent ? "Update Event" : "Create Event"}
                 </button>
               </div>
             </motion.div>

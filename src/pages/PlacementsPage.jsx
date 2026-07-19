@@ -333,6 +333,66 @@ export default function PlacementsPage() {
     { name: "Prof. Abhishek Singh", role: "Placement Coordinator - BBA", email: "abhishek.singh@sarvadnyavidyapeeth.in", phone: "+91 76541 23988", icon: "AS" }
   ];
 
+  const [placementsList, setPlacementsList] = useState([]);
+
+  useEffect(() => {
+    const loadPlacements = async () => {
+      try {
+        const { db, collection, onSnapshot } = await import("../firebase");
+        const unsubscribe = onSnapshot(collection(db, "placements"), (snapshot) => {
+          const list = [];
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.status === "Placed") {
+              const initials = data.student
+                ? data.student
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()
+                    .slice(0, 2)
+                : "ST";
+              // Normalize the package string formatting
+              let pkg = data.package || "";
+              if (pkg && !pkg.includes("₹") && !pkg.includes("Rs")) {
+                pkg = `₹${pkg}`;
+              }
+              if (pkg && !pkg.toLowerCase().includes("lpa")) {
+                pkg = `${pkg} LPA`;
+              }
+              list.push({
+                name: data.student,
+                course: `${data.course} (Batch ${data.year || "2026"})`,
+                company: data.company,
+                package: pkg,
+                quote: `I am extremely grateful to the Placement Cell at Sarvadnya Vidyapeeth. Their continuous guidance, mock tests, and mentorship helped me secure a placement at ${data.company} as a ${data.role || "Professional Student"}.`,
+                initials: initials
+              });
+            }
+          });
+          if (list.length > 0) {
+            setPlacementsList(list);
+          } else {
+            setPlacementsList(testimonials);
+          }
+        });
+        return unsubscribe;
+      } catch (err) {
+        console.error("Failed to load placements:", err);
+      }
+    };
+
+    let unsub;
+    loadPlacements().then((u) => {
+      unsub = u;
+    });
+    return () => {
+      if (unsub) unsub();
+    };
+  }, []);
+
+  const itemsToRenderPlacements = placementsList.length > 0 ? placementsList : testimonials;
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormState(prev => ({ ...prev, [name]: value }));
@@ -705,7 +765,7 @@ export default function PlacementsPage() {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {testimonials.slice((testiPage - 1) * 4, testiPage * 4).map((test, idx) => (
+            {itemsToRenderPlacements.slice((testiPage - 1) * 4, testiPage * 4).map((test, idx) => (
               <FadeIn key={idx} delay={idx * 0.1} className="h-full">
                 <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.015)] hover:shadow-[0_20px_50px_rgba(109,40,217,0.06)] hover:border-purple-250 hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden group h-full flex flex-col justify-between">
                   <span className="absolute bottom-6 right-6 text-slate-100 font-serif text-8xl font-black select-none pointer-events-none group-hover:text-purple-50/70 group-hover:scale-110 transition-all duration-500">

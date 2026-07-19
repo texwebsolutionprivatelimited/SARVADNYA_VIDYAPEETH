@@ -1,220 +1,42 @@
-// Local mock Firebase authentication and Firestore database using localStorage
+import { initializeApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
 
-// --- Auth Mock ---
-class MockAuth {
-  constructor() {
-    this.listeners = [];
-    const savedUser = localStorage.getItem("mock_firebase_auth_user");
-    this.currentUser = savedUser ? { email: savedUser } : null;
-  }
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+};
 
-  _notify() {
-    this.listeners.forEach((cb) => cb(this.currentUser));
-  }
-}
+const app = initializeApp(firebaseConfig);
 
-export const auth = new MockAuth();
+export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
+export const firestoreDb = getFirestore(app);
+export const realtimeDb = getDatabase(app);
+export const db = firestoreDb;
+export default app;
+export {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  query,
+  orderBy
+} from "firebase/firestore";
 
-export function onAuthStateChanged(authInstance, callback) {
-  authInstance.listeners.push(callback);
-  // Call callback immediately with the current state (async to match Firebase behavior)
-  setTimeout(() => {
-    callback(authInstance.currentUser);
-  }, 0);
+export {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "firebase/auth";
 
-  return () => {
-    authInstance.listeners = authInstance.listeners.filter((cb) => cb !== callback);
-  };
-}
-
-export async function signInWithEmailAndPassword(authInstance, email, password) {
-  // Check against registered users in localStorage, defaulting to admin@gmail.com / admin@147
-  const users = JSON.parse(localStorage.getItem("mock_firebase_auth_users") || "[]");
-  
-  // Also support default admin credentials
-  const userExists = users.some(u => u.email === email && u.password === password) || 
-                     (email === "admin@gmail.com" && password === "admin@147");
-
-  if (!userExists) {
-    const err = new Error("Invalid credentials");
-    err.code = "auth/invalid-credential";
-    throw err;
-  }
-
-  authInstance.currentUser = { email };
-  localStorage.setItem("mock_firebase_auth_user", email);
-  authInstance._notify();
-  return { user: authInstance.currentUser };
-}
-
-export async function createUserWithEmailAndPassword(authInstance, email, password) {
-  const users = JSON.parse(localStorage.getItem("mock_firebase_auth_users") || "[]");
-  if (users.some(u => u.email === email)) {
-    const err = new Error("Email already in use");
-    err.code = "auth/email-already-in-use";
-    throw err;
-  }
-
-  users.push({ email, password });
-  localStorage.setItem("mock_firebase_auth_users", JSON.stringify(users));
-
-  authInstance.currentUser = { email };
-  localStorage.setItem("mock_firebase_auth_user", email);
-  authInstance._notify();
-  return { user: authInstance.currentUser };
-}
-
-export async function signOut(authInstance) {
-  authInstance.currentUser = null;
-  localStorage.removeItem("mock_firebase_auth_user");
-  authInstance._notify();
-}
-
-// --- Firestore Mock ---
-export const db = "mock-firestore-db";
-
-class MockDocSnapshot {
-  constructor(id, data) {
-    this.id = id;
-    this._data = data;
-  }
-  data() {
-    return this._data;
-  }
-}
-
-class MockQuerySnapshot {
-  constructor(docs) {
-    this.docs = docs;
-  }
-  forEach(callback) {
-    this.docs.forEach(callback);
-  }
-}
-
-export function collection(dbInstance, collectionName) {
-  return { path: collectionName };
-}
-
-export function doc(dbOrCol, pathOrId, id) {
-  if (id !== undefined) {
-    return { path: pathOrId, id: id };
-  } else {
-    return { path: dbOrCol.path, id: pathOrId };
-  }
-}
-
-// Notification handler for reactive listeners
-function _notifyCollectionChange(collectionName) {
-  if (window._mock_firestore_listeners?.[collectionName]) {
-    window._mock_firestore_listeners[collectionName].forEach((cb) => {
-      try {
-        cb();
-      } catch (e) {
-        console.error("Callback error:", e);
-      }
-    });
-  }
-}
-
-export async function getDocs(collectionRef) {
-  const collectionName = collectionRef.path;
-  const items = JSON.parse(localStorage.getItem(`mock_firestore_${collectionName}`) || "[]");
-  
-  // Map internal items to DocSnapshots
-  const docs = items.map((item) => new MockDocSnapshot(item.id, item));
-  return new MockQuerySnapshot(docs);
-}
-
-export async function addDoc(collectionRef, data) {
-  const collectionName = collectionRef.path;
-  const items = JSON.parse(localStorage.getItem(`mock_firestore_${collectionName}`) || "[]");
-  
-  const newId = Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
-  const newItem = { id: newId, ...data };
-  items.push(newItem);
-  
-  localStorage.setItem(`mock_firestore_${collectionName}`, JSON.stringify(items));
-  _notifyCollectionChange(collectionName);
-  return { id: newId };
-}
-
-export async function updateDoc(docRef, data) {
-  const collectionName = docRef.path;
-  const items = JSON.parse(localStorage.getItem(`mock_firestore_${collectionName}`) || "[]");
-  
-  const updatedItems = items.map((item) => {
-    if (String(item.id) === String(docRef.id)) {
-      return { ...item, ...data };
-    }
-    return item;
-  });
-  
-  localStorage.setItem(`mock_firestore_${collectionName}`, JSON.stringify(updatedItems));
-  _notifyCollectionChange(collectionName);
-}
-
-export async function deleteDoc(docRef) {
-  const collectionName = docRef.path;
-  const items = JSON.parse(localStorage.getItem(`mock_firestore_${collectionName}`) || "[]");
-  
-  const updatedItems = items.filter((item) => String(item.id) !== String(docRef.id));
-  
-  localStorage.setItem(`mock_firestore_${collectionName}`, JSON.stringify(updatedItems));
-  _notifyCollectionChange(collectionName);
-}
-
-export function onSnapshot(collectionRef, callback) {
-  const collectionName = collectionRef.path;
-  
-  const getLatestData = () => {
-    const items = JSON.parse(localStorage.getItem(`mock_firestore_${collectionName}`) || "[]");
-    const docs = items.map((item) => new MockDocSnapshot(item.id, item));
-    return new MockQuerySnapshot(docs);
-  };
-
-  // Trigger callback immediately
-  setTimeout(() => {
-    callback(getLatestData());
-  }, 0);
-
-  // Storage listener for cross-tab updates
-  const handleStorageChange = (e) => {
-    if (e.key === `mock_firestore_${collectionName}`) {
-      callback(getLatestData());
-    }
-  };
-
-  window.addEventListener("storage", handleStorageChange);
-
-  // Local event listener registration
-  const listener = () => {
-    callback(getLatestData());
-  };
-
-  if (!window._mock_firestore_listeners) {
-    window._mock_firestore_listeners = {};
-  }
-  if (!window._mock_firestore_listeners[collectionName]) {
-    window._mock_firestore_listeners[collectionName] = [];
-  }
-  window._mock_firestore_listeners[collectionName].push(listener);
-
-  return () => {
-    window.removeEventListener("storage", handleStorageChange);
-    if (window._mock_firestore_listeners?.[collectionName]) {
-      window._mock_firestore_listeners[collectionName] = window._mock_firestore_listeners[collectionName].filter(
-        (l) => l !== listener
-      );
-    }
-  };
-}
-
-// Pass-through helpers for BlogManager query
-export function query(collectionRef, ...constraints) {
-  return collectionRef;
-}
-
-export function orderBy(field, direction) {
-  return { type: "orderBy", field, direction };
-}

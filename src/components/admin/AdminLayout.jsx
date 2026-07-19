@@ -159,7 +159,10 @@ export default function AdminLayout() {
             </Link>
           )}
           <button
-            onClick={() => signOut(auth)}
+            onClick={() => {
+              sessionStorage.removeItem("admin_authenticated");
+              signOut(auth);
+            }}
             className={`flex items-center gap-3 w-full px-3 py-2 rounded-xl text-[12px] font-semibold text-purple-300/70 hover:text-red-300 hover:bg-red-900/20 transition-all duration-200 ${!showFullSidebar ? "justify-center px-0" : ""}`}
             title="Sign Out"
           >
@@ -195,7 +198,7 @@ export default function AdminLayout() {
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex flex-col items-end">
               <span className="text-[12px] font-bold text-slate-800">Administrator</span>
-              <span className="text-[10px] text-slate-400">admin@svidyapeeth.edu</span>
+              <span className="text-[10px] text-slate-400">{auth.currentUser?.email || "admin@sarvadnya.com"}</span>
             </div>
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-600 to-amber-500 flex items-center justify-center text-white font-bold text-[13px] shadow-md shadow-purple-300/30 border-2 border-white">
               A

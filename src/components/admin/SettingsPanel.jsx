@@ -40,7 +40,7 @@ export default function SettingsPanel() {
 
   const [profile, setProfile] = useState({
     name: "Administrator",
-    email: "admin@svidyapeeth.edu",
+    email: "admin@sarvadnya.com",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
