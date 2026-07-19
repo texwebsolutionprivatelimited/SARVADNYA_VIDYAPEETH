@@ -14,7 +14,7 @@ import {
   Upload,
   ImagePlus,
 } from "lucide-react";
-import { db, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "../../firebase";
+import { db, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "../../firebase";
 
 const INITIAL_PLACEMENTS = [
   { id: 1, student: "Ananya Verma", course: "BCA", company: "TCS", role: "Software Developer", package: "6.5 LPA", year: "2026", status: "Placed", photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face" },
@@ -43,14 +43,13 @@ export default function PlacementManager() {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    const fetchPlacements = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "placements"));
-        const list = [];
-        querySnapshot.forEach((doc) => {
-          list.push({ id: doc.id, ...doc.data() });
-        });
-        if (list.length === 0) {
+    const unsubscribe = onSnapshot(collection(db, "placements"), async (snapshot) => {
+      const list = [];
+      snapshot.forEach((docSnap) => {
+        list.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      if (snapshot.docs.length === 0) {
+        try {
           const seeded = [];
           for (const item of INITIAL_PLACEMENTS) {
             const docRef = await addDoc(collection(db, "placements"), {
@@ -66,14 +65,15 @@ export default function PlacementManager() {
             seeded.push({ id: docRef.id, ...item });
           }
           setPlacements(seeded);
-        } else {
-          setPlacements(list);
+        } catch (err) {
+          console.error("Seeding error:", err);
+          setPlacements(INITIAL_PLACEMENTS);
         }
-      } catch (err) {
-        console.error("Firestore error:", err);
+      } else {
+        setPlacements(list);
       }
-    };
-    fetchPlacements();
+    });
+    return unsubscribe;
   }, []);
 
   const filtered = placements.filter((p) =>
@@ -112,10 +112,8 @@ export default function PlacementManager() {
       if (editingPlacement) {
         const docRef = doc(db, "placements", editingPlacement.id);
         await updateDoc(docRef, form);
-        setPlacements((prev) => prev.map((p) => (p.id === editingPlacement.id ? { ...p, ...form } : p)));
       } else {
-        const docRef = await addDoc(collection(db, "placements"), form);
-        setPlacements((prev) => [{ id: docRef.id, ...form }, ...prev]);
+        await addDoc(collection(db, "placements"), form);
       }
       setShowModal(false);
     } catch (err) {
@@ -126,7 +124,6 @@ export default function PlacementManager() {
   const handleDelete = async (id) => {
     try {
       await deleteDoc(doc(db, "placements", id));
-      setPlacements((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
       console.error("Failed to delete placement:", err);
     }

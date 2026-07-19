@@ -13,7 +13,7 @@ import {
   AlertCircle,
   Clock,
 } from "lucide-react";
-import { db, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "../../firebase";
+import { db, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "../../firebase";
 
 const PRIORITY_CONFIG = {
   Urgent: { icon: AlertTriangle, color: "bg-red-50 text-red-700 border-red-200", dot: "bg-red-500", gradient: "from-red-500 to-rose-600" },
@@ -44,14 +44,13 @@ export default function NoticeManager() {
   const [form, setForm] = useState({ title: "", content: "", priority: "General", expiresAt: "" });
 
   useEffect(() => {
-    const fetchNotices = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "notices"));
-        const list = [];
-        querySnapshot.forEach((doc) => {
-          list.push({ id: doc.id, ...doc.data() });
-        });
-        if (list.length === 0) {
+    const unsubscribe = onSnapshot(collection(db, "notices"), async (snapshot) => {
+      const list = [];
+      snapshot.forEach((docSnap) => {
+        list.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      if (snapshot.docs.length === 0) {
+        try {
           const seeded = [];
           for (const item of INITIAL_NOTICES) {
             const docRef = await addDoc(collection(db, "notices"), {
@@ -65,14 +64,15 @@ export default function NoticeManager() {
             seeded.push({ id: docRef.id, ...item });
           }
           setNotices(seeded);
-        } else {
-          setNotices(list);
+        } catch (err) {
+          console.error("Seeding error:", err);
+          setNotices(INITIAL_NOTICES);
         }
-      } catch (err) {
-        console.error("Firestore error:", err);
+      } else {
+        setNotices(list);
       }
-    };
-    fetchNotices();
+    });
+    return unsubscribe;
   }, []);
 
   const FILTERS = ["All", "Urgent", "Important", "General"];
@@ -108,15 +108,13 @@ export default function NoticeManager() {
       if (editingNotice) {
         const docRef = doc(db, "notices", editingNotice.id);
         await updateDoc(docRef, form);
-        setNotices((prev) => prev.map((n) => (n.id === editingNotice.id ? { ...n, ...form } : n)));
       } else {
         const newNoticeData = {
           ...form,
           pinned: false,
           date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
         };
-        const docRef = await addDoc(collection(db, "notices"), newNoticeData);
-        setNotices((prev) => [{ id: docRef.id, ...newNoticeData }, ...prev]);
+        await addDoc(collection(db, "notices"), newNoticeData);
       }
       setShowModal(false);
     } catch (err) {
@@ -127,7 +125,6 @@ export default function NoticeManager() {
   const handleDelete = async (id) => {
     try {
       await deleteDoc(doc(db, "notices", id));
-      setNotices((prev) => prev.filter((n) => n.id !== id));
     } catch (err) {
       console.error("Failed to delete notice:", err);
     }
@@ -139,7 +136,6 @@ export default function NoticeManager() {
     try {
       const docRef = doc(db, "notices", id);
       await updateDoc(docRef, { pinned: !noticeToToggle.pinned });
-      setNotices((prev) => prev.map((n) => (n.id === id ? { ...n, pinned: !n.pinned } : n)));
     } catch (err) {
       console.error("Failed to pin/unpin notice:", err);
     }

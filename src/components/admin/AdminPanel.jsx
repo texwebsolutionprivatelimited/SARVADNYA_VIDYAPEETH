@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { auth, onAuthStateChanged, signOut } from "../firebase";
-import AdminLogin from "../components/admin/AdminLogin";
-import AdminLayout from "../components/admin/AdminLayout";
-import Dashboard from "../components/admin/Dashboard";
-import BlogManager from "../components/admin/BlogManager";
-import BrochureManager from "../components/admin/BrochureManager";
-import EventManager from "../components/admin/EventManager";
-import EnquiryManager from "../components/admin/EnquiryManager";
-import GalleryManager from "../components/admin/GalleryManager";
-import PlacementManager from "../components/admin/PlacementManager";
-import NoticeManager from "../components/admin/NoticeManager";
-import SettingsPanel from "../components/admin/SettingsPanel";
+import { auth, onAuthStateChanged, signOut } from "../../firebase";
+import AdminLogin from "./AdminLogin";
+import AdminLayout from "./AdminLayout";
+import Dashboard from "./Dashboard";
+import BlogManager from "./BlogManager";
+import BrochureManager from "./BrochureManager";
+import EventManager from "./EventManager";
+import EnquiryManager from "./EnquiryManager";
+import GalleryManager from "./GalleryManager";
+import PlacementManager from "./PlacementManager";
+import NoticeManager from "./NoticeManager";
+import SettingsPanel from "./SettingsPanel";
+import TestimonialManager from "./TestimonialManager";
 
 export default function AdminPanel() {
   const [user, setUser] = useState(null);
@@ -57,6 +58,7 @@ export default function AdminPanel() {
         <Route path="gallery" element={<GalleryManager />} />
         <Route path="placements" element={<PlacementManager />} />
         <Route path="notices" element={<NoticeManager />} />
+        <Route path="testimonials" element={<TestimonialManager />} />
         <Route path="settings" element={<SettingsPanel />} />
         <Route path="*" element={<Navigate to="/adminpanel" replace />} />
       </Route>

@@ -28,6 +28,8 @@ export {
   updateDoc,
   deleteDoc,
   doc,
+  setDoc,
+  getDoc,
   onSnapshot,
   query,
   orderBy

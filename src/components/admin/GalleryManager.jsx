@@ -11,7 +11,7 @@ import {
   Eye,
   MapPin,
 } from "lucide-react";
-import { db, collection, getDocs, addDoc, deleteDoc, doc } from "../../firebase";
+import { db, collection, addDoc, deleteDoc, doc, onSnapshot } from "../../firebase";
 
 const ALBUMS = ["All", "Campus Tour", "Events", "Hackathon 2026", "Cultural Fest", "Hostel", "Classroom"];
 
@@ -51,14 +51,13 @@ export default function GalleryManager() {
   const [form, setForm] = useState({ title: "", album: "Campus Tour", postArea: "home" });
 
   useEffect(() => {
-    const fetchImages = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "gallery"));
-        const list = [];
-        querySnapshot.forEach((doc) => {
-          list.push({ id: doc.id, ...doc.data() });
-        });
-        if (list.length === 0) {
+    const unsubscribe = onSnapshot(collection(db, "gallery"), async (snapshot) => {
+      const list = [];
+      snapshot.forEach((docSnap) => {
+        list.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      if (snapshot.docs.length === 0) {
+        try {
           const seeded = [];
           for (const item of INITIAL_IMAGES) {
             const docRef = await addDoc(collection(db, "gallery"), {
@@ -71,14 +70,15 @@ export default function GalleryManager() {
             seeded.push({ id: docRef.id, ...item });
           }
           setImages(seeded);
-        } else {
-          setImages(list);
+        } catch (err) {
+          console.error("Seeding error:", err);
+          setImages(INITIAL_IMAGES);
         }
-      } catch (err) {
-        console.error("Firestore error:", err);
+      } else {
+        setImages(list);
       }
-    };
-    fetchImages();
+    });
+    return unsubscribe;
   }, []);
 
   const filtered = activeAlbum === "All" ? images : images.filter((img) => img.album === activeAlbum);
@@ -93,8 +93,7 @@ export default function GalleryManager() {
       date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
     };
     try {
-      const docRef = await addDoc(collection(db, "gallery"), newImage);
-      setImages((prev) => [{ id: docRef.id, ...newImage }, ...prev]);
+      await addDoc(collection(db, "gallery"), newImage);
       setShowUpload(false);
       setForm({ title: "", album: "Campus Tour", postArea: "home" });
     } catch (err) {
@@ -105,7 +104,6 @@ export default function GalleryManager() {
   const handleDelete = async (id) => {
     try {
       await deleteDoc(doc(db, "gallery", id));
-      setImages((prev) => prev.filter((img) => img.id !== id));
     } catch (err) {
       console.error("Failed to delete image:", err);
     }

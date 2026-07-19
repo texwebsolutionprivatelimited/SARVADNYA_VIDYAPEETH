@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Save,
@@ -11,6 +11,7 @@ import {
   Palette,
   ExternalLink,
 } from "lucide-react";
+import { db, doc, onSnapshot, setDoc } from "../../firebase";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -24,10 +25,10 @@ export default function SettingsPanel() {
   const [general, setGeneral] = useState({
     collegeName: "Sarvadnya Vidyapeeth",
     tagline: "Affiliated to Aryabhatta Knowledge University, Patna",
-    phone: "+91 98765 43210",
-    email: "info@svidyapeeth.edu",
-    address: "Near Danapur, Patna, Bihar – 801503",
-    website: "www.svidyapeeth.edu",
+    phone: "+91 99553 30733",
+    email: "info@sarvadnyavidyapeeth.in",
+    address: "Plot No - 2258, Beur-Betauda Road, Anishabad, Patna (Bihar) - 800002",
+    website: "www.sarvadnyavidyapeeth.in",
   });
 
   const [social, setSocial] = useState({
@@ -46,9 +47,30 @@ export default function SettingsPanel() {
     confirmPassword: "",
   });
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "settings", "siteConfig"), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.general) setGeneral((prev) => ({ ...prev, ...data.general }));
+        if (data.social) setSocial((prev) => ({ ...prev, ...data.social }));
+        if (data.profile) setProfile((prev) => ({ ...prev, name: data.profile.name || prev.name, email: data.profile.email || prev.email }));
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      await setDoc(doc(db, "settings", "siteConfig"), {
+        general,
+        social,
+        profile: { name: profile.name, email: profile.email }
+      }, { merge: true });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      console.error("Failed to save settings to Firestore:", err);
+    }
   };
 
   const TABS = [

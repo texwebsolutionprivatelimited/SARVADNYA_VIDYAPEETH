@@ -2,76 +2,91 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SectionHeading from "../SectionHeading";
 
-const TESTIMONIALS = [
+/* ── Hardcoded fallback data (used only if Firebase has no active testimonials) ── */
+const FALLBACK_TESTIMONIALS = [
   {
-    id: 1,
+    id: "fallback-1",
     name: "Priya Kumari",
-    role: "BCA Graduate, Batch 2025",
+    designation: "BCA Graduate, Batch 2025",
     rating: 5,
-    text: "Sarvadnya Vidyapeeth transformed my career trajectory entirely. The faculty didn't just teach — they mentored us through real-world projects. I got placed at an IT firm even before my final semester exams. The practical approach to education here is unmatched!",
-    initials: "PK",
-    gradientFrom: "#6366F1",
-    gradientTo: "#8B5CF6",
+    review: "Sarvadnya Vidyapeeth transformed my career trajectory entirely. The faculty didn't just teach — they mentored us through real-world projects. I got placed at an IT firm even before my final semester exams. The practical approach to education here is unmatched!",
+    image: null,
     placed: "TCS Digital",
   },
   {
-    id: 2,
+    id: "fallback-2",
     name: "Rahul Verma",
-    role: "BBA Graduate, Batch 2024",
+    designation: "BBA Graduate, Batch 2024",
     rating: 5,
-    text: "What sets SV apart is the holistic development — from personality workshops to industry visits. The placement cell worked tirelessly to connect us with top recruiters. I'm now working in a Fortune 500 company, all thanks to the foundation SV built for me.",
-    initials: "RV",
-    gradientFrom: "#EC4899",
-    gradientTo: "#F43F5E",
+    review: "What sets SV apart is the holistic development — from personality workshops to industry visits. The placement cell worked tirelessly to connect us with top recruiters. I'm now working in a Fortune 500 company, all thanks to the foundation SV built for me.",
+    image: null,
     placed: "Deloitte",
   },
   {
-    id: 3,
+    id: "fallback-3",
     name: "Anjali Singh",
-    role: "BCA Student, 3rd Year",
+    designation: "BCA Student, 3rd Year",
     rating: 5,
-    text: "The computer labs here are world-class — always updated with the latest software. Our professors encourage us to participate in hackathons and coding contests. I've already won two state-level competitions and have an internship at a startup!",
-    initials: "AS",
-    gradientFrom: "#14B8A6",
-    gradientTo: "#06B6D4",
+    review: "The computer labs here are world-class — always updated with the latest software. Our professors encourage us to participate in hackathons and coding contests. I've already won two state-level competitions and have an internship at a startup!",
+    image: null,
     placed: "Google Internship",
   },
   {
-    id: 4,
+    id: "fallback-4",
     name: "Amit Kumar Sinha",
-    role: "BBA Graduate, Batch 2025",
+    designation: "BBA Graduate, Batch 2025",
     rating: 5,
-    text: "The best decision I ever made was choosing SV for my BBA. The case-study based learning, mock interviews, and group discussions prepared me thoroughly. The campus culture is vibrant and the faculty are always accessible. Truly a premium experience.",
-    initials: "AK",
-    gradientFrom: "#F59E0B",
-    gradientTo: "#EF4444",
+    review: "The best decision I ever made was choosing SV for my BBA. The case-study based learning, mock interviews, and group discussions prepared me thoroughly. The campus culture is vibrant and the faculty are always accessible. Truly a premium experience.",
+    image: null,
     placed: "HDFC Bank",
   },
   {
-    id: 5,
+    id: "fallback-5",
     name: "Sneha Bharti",
-    role: "BCA Graduate, Batch 2024",
+    designation: "BCA Graduate, Batch 2024",
     rating: 5,
-    text: "SV gave me confidence I never knew I had. From a shy student to a confident software developer — this journey wouldn't have been possible without the support system here. The industry-relevant curriculum and coding bootcamps were game-changers.",
-    initials: "SB",
-    gradientFrom: "#8B5CF6",
-    gradientTo: "#3B82F6",
+    review: "SV gave me confidence I never knew I had. From a shy student to a confident software developer — this journey wouldn't have been possible without the support system here. The industry-relevant curriculum and coding bootcamps were game-changers.",
+    image: null,
     placed: "Infosys",
   },
   {
-    id: 6,
+    id: "fallback-6",
     name: "Vikash Ranjan",
-    role: "BCA Student, 2nd Year",
+    designation: "BCA Student, 2nd Year",
     rating: 4,
-    text: "I love how SV balances academics with extracurriculars. The smart classrooms make learning engaging, and the regular tech seminars keep us updated with industry trends. The hostel facilities are comfortable and the campus feels like a second home.",
-    initials: "VR",
-    gradientFrom: "#10B981",
-    gradientTo: "#059669",
+    review: "I love how SV balances academics with extracurriculars. The smart classrooms make learning engaging, and the regular tech seminars keep us updated with industry trends. The hostel facilities are comfortable and the campus feels like a second home.",
+    image: null,
     placed: null,
   },
 ];
 
+/* ── Gradient color palette for avatars ── */
+const GRADIENT_PALETTE = [
+  { from: "#6366F1", to: "#8B5CF6" },
+  { from: "#EC4899", to: "#F43F5E" },
+  { from: "#14B8A6", to: "#06B6D4" },
+  { from: "#F59E0B", to: "#EF4444" },
+  { from: "#8B5CF6", to: "#3B82F6" },
+  { from: "#10B981", to: "#059669" },
+  { from: "#6366F1", to: "#EC4899" },
+  { from: "#F97316", to: "#EF4444" },
+];
+
 const AUTO_ROTATE = 6000;
+
+/* ── Helpers ── */
+function getInitials(name) {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function getGradient(index) {
+  return GRADIENT_PALETTE[index % GRADIENT_PALETTE.length];
+}
 
 /* ── Star Rating Component ── */
 function Stars({ count }) {
@@ -101,9 +116,46 @@ function QuoteIcon({ className }) {
 }
 
 export default function Testimonials() {
+  const [testimonials, setTestimonials] = useState([]);
   const [active, setActive] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef(null);
+
+  /* ── Load testimonials from Firebase (only active ones) ── */
+  useEffect(() => {
+    const loadTestimonials = async () => {
+      try {
+        const { db, collection, onSnapshot } = await import("../../firebase");
+        const unsubscribe = onSnapshot(collection(db, "testimonials"), (snapshot) => {
+          const list = [];
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            // Only show active testimonials on the website
+            if (data.active !== false) {
+              list.push({ id: doc.id, ...data });
+            }
+          });
+          if (list.length > 0) {
+            setTestimonials(list);
+          } else {
+            setTestimonials(FALLBACK_TESTIMONIALS);
+          }
+        });
+        return unsubscribe;
+      } catch (err) {
+        console.error("Failed to load testimonials:", err);
+        setTestimonials(FALLBACK_TESTIMONIALS);
+      }
+    };
+
+    let unsub;
+    loadTestimonials().then((u) => {
+      unsub = u;
+    });
+    return () => {
+      if (unsub) unsub();
+    };
+  }, []);
 
   const goTo = useCallback(
     (idx) => setActive(idx),
@@ -111,16 +163,26 @@ export default function Testimonials() {
   );
 
   const goNext = useCallback(() => {
-    setActive((prev) => (prev + 1) % TESTIMONIALS.length);
-  }, []);
+    setActive((prev) => (testimonials.length > 0 ? (prev + 1) % testimonials.length : 0));
+  }, [testimonials.length]);
 
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || testimonials.length === 0) return;
     timerRef.current = setInterval(goNext, AUTO_ROTATE);
     return () => clearInterval(timerRef.current);
-  }, [goNext, isPaused]);
+  }, [goNext, isPaused, testimonials.length]);
 
-  const current = TESTIMONIALS[active];
+  // Reset active index when testimonials change
+  useEffect(() => {
+    if (active >= testimonials.length && testimonials.length > 0) {
+      setActive(0);
+    }
+  }, [testimonials.length, active]);
+
+  if (testimonials.length === 0) return null;
+
+  const current = testimonials[active];
+  const currentGradient = getGradient(active);
 
   return (
     <section
@@ -179,7 +241,7 @@ export default function Testimonials() {
                 <div
                   className="absolute -inset-4 rounded-3xl blur-2xl opacity-20 pointer-events-none"
                   style={{
-                    background: `linear-gradient(135deg, ${current.gradientFrom}, ${current.gradientTo})`,
+                    background: `linear-gradient(135deg, ${currentGradient.from}, ${currentGradient.to})`,
                   }}
                 />
 
@@ -189,12 +251,12 @@ export default function Testimonials() {
 
                   {/* Stars */}
                   <div className="mb-5">
-                    <Stars count={current.rating} />
+                    <Stars count={current.rating || 5} />
                   </div>
 
                   {/* Testimonial text */}
                   <p className="text-slate-700 text-sm md:text-base leading-relaxed md:leading-loose mb-8 relative z-10">
-                    "{current.text}"
+                    "{current.review || current.text}"
                   </p>
 
                   {/* Divider */}
@@ -203,21 +265,29 @@ export default function Testimonials() {
                   {/* Author info */}
                   <div className="flex items-center gap-4">
                     {/* Avatar */}
-                    <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg flex-shrink-0"
-                      style={{
-                        background: `linear-gradient(135deg, ${current.gradientFrom}, ${current.gradientTo})`,
-                      }}
-                    >
-                      {current.initials}
-                    </div>
+                    {current.image ? (
+                      <img
+                        src={current.image}
+                        alt={current.name}
+                        className="w-12 h-12 rounded-full object-cover shadow-lg flex-shrink-0 border-2 border-white"
+                      />
+                    ) : (
+                      <div
+                        className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg flex-shrink-0"
+                        style={{
+                          background: `linear-gradient(135deg, ${currentGradient.from}, ${currentGradient.to})`,
+                        }}
+                      >
+                        {getInitials(current.name)}
+                      </div>
+                    )}
 
                     <div className="flex-1">
                       <h4 className="text-slate-900 font-bold text-sm md:text-base leading-tight">
                         {current.name}
                       </h4>
                       <p className="text-slate-500 text-xs md:text-sm mt-0.5">
-                        {current.role}
+                        {current.designation || current.role}
                       </p>
                     </div>
 
@@ -239,57 +309,70 @@ export default function Testimonials() {
           {/* ── Right: Avatar selector grid ── */}
           <div className="lg:col-span-5">
             <div className="grid grid-cols-3 gap-3 md:gap-4 max-w-[340px] mx-auto lg:mx-0 lg:ml-auto">
-              {TESTIMONIALS.map((t, idx) => (
-                <button
-                  key={t.id}
-                  onClick={() => goTo(idx)}
-                  className={`group relative flex flex-col items-center gap-2 p-3 md:p-4 rounded-xl border transition-all duration-500 cursor-pointer ${
-                    idx === active
-                      ? "bg-white border-purple-200 shadow-md scale-105"
-                      : "bg-purple-50/50 border-purple-100/50 hover:bg-purple-50/80 hover:border-purple-200/40 shadow-sm"
-                  }`}
-                >
-                  {/* Active indicator glow */}
-                  {idx === active && (
-                    <div
-                      className="absolute -inset-1 rounded-xl blur-md opacity-20 pointer-events-none"
-                      style={{
-                        background: `linear-gradient(135deg, ${t.gradientFrom}, ${t.gradientTo})`,
-                      }}
-                    />
-                  )}
-
-                  {/* Avatar */}
-                  <div
-                    className={`relative w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-white font-bold text-xs md:text-sm shadow-md transition-all duration-500 ${
-                      idx === active ? "ring-2 ring-purple-300 ring-offset-2 ring-offset-transparent" : "opacity-60 group-hover:opacity-90"
-                    }`}
-                    style={{
-                      background: `linear-gradient(135deg, ${t.gradientFrom}, ${t.gradientTo})`,
-                    }}
-                  >
-                    {t.initials}
-                  </div>
-
-                  {/* Name (truncated) */}
-                  <span
-                    className={`text-[10px] md:text-[11px] font-semibold leading-tight text-center transition-colors duration-300 ${
-                      idx === active ? "text-purple-950 font-bold" : "text-slate-500 group-hover:text-slate-700"
-                    }`}
-                  >
-                    {t.name.split(" ")[0]}
-                  </span>
-
-                  {/* Active dot */}
-                  <div
-                    className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${
+              {testimonials.map((t, idx) => {
+                const tGrad = getGradient(idx);
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => goTo(idx)}
+                    className={`group relative flex flex-col items-center gap-2 p-3 md:p-4 rounded-xl border transition-all duration-500 cursor-pointer ${
                       idx === active
-                        ? "bg-amber-500 shadow-sm"
-                        : "bg-purple-100"
+                        ? "bg-white border-purple-200 shadow-md scale-105"
+                        : "bg-purple-50/50 border-purple-100/50 hover:bg-purple-50/80 hover:border-purple-200/40 shadow-sm"
                     }`}
-                  />
-                </button>
-              ))}
+                  >
+                    {/* Active indicator glow */}
+                    {idx === active && (
+                      <div
+                        className="absolute -inset-1 rounded-xl blur-md opacity-20 pointer-events-none"
+                        style={{
+                          background: `linear-gradient(135deg, ${tGrad.from}, ${tGrad.to})`,
+                        }}
+                      />
+                    )}
+
+                    {/* Avatar */}
+                    {t.image ? (
+                      <img
+                        src={t.image}
+                        alt={t.name}
+                        className={`relative w-10 h-10 md:w-12 md:h-12 rounded-full object-cover shadow-md transition-all duration-500 ${
+                          idx === active ? "ring-2 ring-purple-300 ring-offset-2 ring-offset-transparent" : "opacity-60 group-hover:opacity-90"
+                        }`}
+                      />
+                    ) : (
+                      <div
+                        className={`relative w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-white font-bold text-xs md:text-sm shadow-md transition-all duration-500 ${
+                          idx === active ? "ring-2 ring-purple-300 ring-offset-2 ring-offset-transparent" : "opacity-60 group-hover:opacity-90"
+                        }`}
+                        style={{
+                          background: `linear-gradient(135deg, ${tGrad.from}, ${tGrad.to})`,
+                        }}
+                      >
+                        {getInitials(t.name)}
+                      </div>
+                    )}
+
+                    {/* Name (truncated) */}
+                    <span
+                      className={`text-[10px] md:text-[11px] font-semibold leading-tight text-center transition-colors duration-300 ${
+                        idx === active ? "text-purple-950 font-bold" : "text-slate-500 group-hover:text-slate-700"
+                      }`}
+                    >
+                      {t.name.split(" ")[0]}
+                    </span>
+
+                    {/* Active dot */}
+                    <div
+                      className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${
+                        idx === active
+                          ? "bg-amber-500 shadow-sm"
+                          : "bg-purple-100"
+                      }`}
+                    />
+                  </button>
+                );
+              })}
             </div>
 
             {/* Progress bar */}

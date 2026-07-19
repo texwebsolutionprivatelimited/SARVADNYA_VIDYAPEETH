@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -11,6 +11,7 @@ import {
   File,
   BookOpen,
 } from "lucide-react";
+import { db, collection, addDoc, deleteDoc, doc, onSnapshot } from "../../firebase";
 
 const INITIAL_BROCHURES = [
   { id: 1, title: "BCA Course Brochure 2026-27", type: "PDF", size: "2.4 MB", downloads: 234, date: "Jun 20, 2026", category: "Courses" },
@@ -41,15 +42,46 @@ const fadeUp = {
 };
 
 export default function BrochureManager() {
-  const [brochures, setBrochures] = useState(INITIAL_BROCHURES);
+  const [brochures, setBrochures] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ title: "", category: "Courses" });
   const [dragActive, setDragActive] = useState(false);
 
-  const handleAdd = () => {
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "brochures"), async (snapshot) => {
+      const list = [];
+      snapshot.forEach((docSnap) => {
+        list.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      if (snapshot.docs.length === 0) {
+        try {
+          const seeded = [];
+          for (const item of INITIAL_BROCHURES) {
+            const docRef = await addDoc(collection(db, "brochures"), {
+              title: item.title,
+              type: item.type,
+              size: item.size,
+              downloads: item.downloads,
+              date: item.date,
+              category: item.category,
+            });
+            seeded.push({ id: docRef.id, ...item });
+          }
+          setBrochures(seeded);
+        } catch (err) {
+          console.error("Seeding error:", err);
+          setBrochures(INITIAL_BROCHURES);
+        }
+      } else {
+        setBrochures(list);
+      }
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleAdd = async () => {
     if (!form.title.trim()) return;
     const newBrochure = {
-      id: Date.now(),
       title: form.title,
       type: "PDF",
       size: "1.2 MB",
@@ -57,13 +89,21 @@ export default function BrochureManager() {
       date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
       category: form.category,
     };
-    setBrochures((prev) => [newBrochure, ...prev]);
-    setShowModal(false);
-    setForm({ title: "", category: "Courses" });
+    try {
+      await addDoc(collection(db, "brochures"), newBrochure);
+      setShowModal(false);
+      setForm({ title: "", category: "Courses" });
+    } catch (err) {
+      console.error("Failed to add brochure:", err);
+    }
   };
 
-  const handleDelete = (id) => {
-    setBrochures((prev) => prev.filter((b) => b.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      await deleteDoc(doc(db, "brochures", id));
+    } catch (err) {
+      console.error("Failed to delete brochure:", err);
+    }
   };
 
   return (

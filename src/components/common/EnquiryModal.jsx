@@ -91,7 +91,7 @@ export default function EnquiryModal() {
           date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
           status: "Pending"
         };
-        const { db, collection, addDoc } = await import("../firebase");
+        const { db, collection, addDoc } = await import("../../firebase");
         await addDoc(collection(db, "enquiries"), enqData);
         setIsSubmitted(true);
       } catch (err) {
@@ -163,9 +163,8 @@ export default function EnquiryModal() {
         )}
       </AnimatePresence>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* POPUP 2: Enquiry Form                                  */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* POPUP 2: Enquiry Form*/}
+
       <AnimatePresence>
         {phase === "form" && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">

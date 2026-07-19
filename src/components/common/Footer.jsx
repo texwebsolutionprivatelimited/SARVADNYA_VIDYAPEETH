@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Phone, Mail } from "lucide-react";
+import { useSettings } from "../../hooks/useSettings";
 
 const ABOUT_LINKS = [
   { label: "About Sarvadnya", path: "/about#about-sarvadnya" },
@@ -47,15 +48,17 @@ const YoutubeIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
 );
 
-const SOCIAL_LINKS = [
-  { icon: FacebookIcon, href: "#", label: "Facebook" },
-  { icon: XIcon, href: "#", label: "X (Twitter)" },
-  { icon: InstagramIcon, href: "#", label: "Instagram" },
-  { icon: LinkedinIcon, href: "#", label: "LinkedIn" },
-  { icon: YoutubeIcon, href: "#", label: "YouTube" },
-];
-
 export default function Footer() {
+  const { settings } = useSettings();
+  const { general, social } = settings;
+
+  const SOCIAL_LINKS = [
+    { icon: FacebookIcon, href: social.facebook || "#", label: "Facebook" },
+    { icon: XIcon, href: social.twitter || "#", label: "X (Twitter)" },
+    { icon: InstagramIcon, href: social.instagram || "#", label: "Instagram" },
+    { icon: LinkedinIcon, href: social.linkedin || "#", label: "LinkedIn" },
+    { icon: YoutubeIcon, href: social.youtube || "#", label: "YouTube" },
+  ];
   return (
     <footer className="bg-slate-50 text-slate-800 text-sm border-t border-purple-100" id="site-footer">
 
@@ -173,20 +176,18 @@ export default function Footer() {
             <ul className="space-y-2 text-xs text-slate-600">
               <li className="flex items-start gap-2">
                 <MapPin size={14} className="text-purple-600 mt-0.5 flex-shrink-0" />
-                <span>Beur-Betaura Road, Anishabad, Patna (Bihar) - 800002</span>
+                <span>{general.address}</span>
               </li>
               <li className="flex flex-col gap-1.5 pl-6 text-xs text-slate-600">
                 <div className="flex items-center gap-2 -ml-6">
                   <Phone size={14} className="text-purple-600 flex-shrink-0" />
                   <span className="font-bold text-slate-700">Helplines:</span>
                 </div>
-                <a href="tel:9955330733" className="hover:text-purple-800 transition-colors">9955330733</a>
-                <a href="tel:7282831934" className="hover:text-purple-800 transition-colors">7282831934</a>
-                <a href="tel:6205431678" className="hover:text-purple-800 transition-colors">6205431678</a>
+                <a href={`tel:${general.phone}`} className="hover:text-purple-800 transition-colors font-medium">{general.phone}</a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={14} className="text-purple-600 flex-shrink-0" />
-                <a href="mailto:info@sarvadnyavidyapeeth.in" className="hover:text-purple-800 transition-colors">info@sarvadnyavidyapeeth.in</a>
+                <a href={`mailto:${general.email}`} className="hover:text-purple-800 transition-colors">{general.email}</a>
               </li>
             </ul>
           </div>
@@ -198,7 +199,7 @@ export default function Footer() {
       <div className="border-t border-purple-100 bg-slate-100">
         <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-slate-500 text-center sm:text-left">
-            Copyright © 2026 <span className="text-purple-800 font-semibold">Sarvadnya Vidyapeeth, Patna</span>, Affiliated to Aryabhatta Knowledge University, Patna
+            Copyright © 2026 <span className="text-purple-800 font-semibold">{general.collegeName}</span>, {general.tagline}
           </p>
           <p className="text-[10px] text-slate-400">
             Designed &amp; Developed by{" "}

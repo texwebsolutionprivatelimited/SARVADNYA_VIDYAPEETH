@@ -1,6 +1,6 @@
 import React from "react"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-import Layout from "./components/Layout"
+import Layout from "./components/common/Layout"
 import Home from "./pages/Home"
 import AboutPage from "./pages/about/AboutPage"
 import CoursesPage from "./pages/CoursesPage"
@@ -14,7 +14,8 @@ import EventsPage from "./pages/EventsPage"
 import AdmissionPage from "./pages/AdmissionPage"
 import ContactPage from "./pages/ContactPage"
 import MandatoryDisclosurePage from "./pages/MandatoryDisclosurePage"
-import AdminPanel from "./pages/AdminPanel"
+import BlogDetailPage from "./pages/BlogDetailPage"
+import AdminPanel from "./components/admin/AdminPanel"
 
 function App() {
   return (
@@ -34,6 +35,8 @@ function App() {
           <Route path="admission" element={<AdmissionPage />} />
           <Route path="contact" element={<ContactPage />} />
           <Route path="mandatory-disclosure" element={<MandatoryDisclosurePage />} />
+          <Route path="blog/:id" element={<BlogDetailPage />} />
+          <Route path="blogs/:id" element={<BlogDetailPage />} />
         </Route>
         {/* Admin Panel — separate layout (no Navbar/Footer) */}
         <Route path="/adminpanel/*" element={<AdminPanel />} />

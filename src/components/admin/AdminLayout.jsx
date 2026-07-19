@@ -18,6 +18,7 @@ import {
   LogOut,
   Shield,
   Home,
+  Quote,
 } from "lucide-react";
 
 const SIDEBAR_ITEMS = [
@@ -29,6 +30,7 @@ const SIDEBAR_ITEMS = [
   { label: "Gallery", icon: Image, path: "/adminpanel/gallery" },
   { label: "Placements", icon: Briefcase, path: "/adminpanel/placements" },
   { label: "Notices", icon: Bell, path: "/adminpanel/notices" },
+  { label: "Testimonials", icon: Quote, path: "/adminpanel/testimonials" },
   { label: "Settings", icon: Settings, path: "/adminpanel/settings" },
 ];
 

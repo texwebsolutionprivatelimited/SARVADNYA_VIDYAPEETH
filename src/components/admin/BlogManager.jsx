@@ -12,8 +12,10 @@ import {
   ChevronDown,
   ImagePlus,
   Upload,
+  AlertTriangle,
+  HelpCircle,
 } from "lucide-react";
-import { db, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from "../../firebase";
+import { db, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot } from "../../firebase";
 
 const CATEGORIES = ["All", "Technology", "Campus", "Admissions", "Placements", "Events"];
 
@@ -51,20 +53,20 @@ export default function BlogManager() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [showModal, setShowModal] = useState(false);
   const [editingBlog, setEditingBlog] = useState(null);
+  const [confirmDeleteBlog, setConfirmDeleteBlog] = useState(null);
+  const [confirmEditBlog, setConfirmEditBlog] = useState(null);
 
-  const [form, setForm] = useState({ title: "", category: "Technology", status: "Draft", author: "", image: null });
+  const [form, setForm] = useState({ title: "", category: "Technology", status: "Draft", author: "", image: null, excerpt: "", content: "" });
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "blogs"));
-        const list = [];
-        querySnapshot.forEach((doc) => {
-          list.push({ id: doc.id, ...doc.data() });
-        });
-        
-        if (list.length === 0) {
+    const unsubscribe = onSnapshot(collection(db, "blogs"), async (snapshot) => {
+      const list = [];
+      snapshot.forEach((docSnap) => {
+        list.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      if (snapshot.docs.length === 0) {
+        try {
           const seeded = [];
           for (const item of INITIAL_BLOGS) {
             const docRef = await addDoc(collection(db, "blogs"), {
@@ -75,19 +77,21 @@ export default function BlogManager() {
               views: item.views,
               author: item.author,
               image: item.image || null,
+              excerpt: item.excerpt || item.title,
+              content: item.content || item.title,
             });
             seeded.push({ id: docRef.id, ...item });
           }
           setBlogs(seeded);
-        } else {
-          // Sort by timestamp or date if needed, for now just show list
-          setBlogs(list);
+        } catch (err) {
+          console.error("Seeding error:", err);
+          setBlogs(INITIAL_BLOGS);
         }
-      } catch (err) {
-        console.error("Firestore error:", err);
+      } else {
+        setBlogs(list);
       }
-    };
-    fetchBlogs();
+    });
+    return unsubscribe;
   }, []);
 
   const filtered = blogs.filter((b) => {
@@ -98,13 +102,21 @@ export default function BlogManager() {
 
   const openAdd = () => {
     setEditingBlog(null);
-    setForm({ title: "", category: "Technology", status: "Draft", author: "", image: null });
+    setForm({ title: "", category: "Technology", status: "Draft", author: "", image: null, excerpt: "", content: "" });
     setShowModal(true);
   };
 
   const openEdit = (blog) => {
     setEditingBlog(blog);
-    setForm({ title: blog.title, category: blog.category, status: blog.status, author: blog.author, image: blog.image || null });
+    setForm({
+      title: blog.title || "",
+      category: blog.category || "Technology",
+      status: blog.status || "Draft",
+      author: blog.author || "",
+      image: blog.image || null,
+      excerpt: blog.excerpt || "",
+      content: blog.content || "",
+    });
     setShowModal(true);
   };
 
@@ -124,18 +136,25 @@ export default function BlogManager() {
   const handleSave = async () => {
     if (!form.title.trim()) return;
     try {
+      const dataToSave = {
+        title: form.title,
+        category: form.category,
+        status: form.status,
+        author: form.author || "Admin",
+        image: form.image || null,
+        excerpt: form.excerpt || form.title,
+        content: form.content || form.excerpt || form.title,
+      };
+
       if (editingBlog) {
         const docRef = doc(db, "blogs", editingBlog.id);
-        await updateDoc(docRef, form);
-        setBlogs((prev) => prev.map((b) => (b.id === editingBlog.id ? { ...b, ...form } : b)));
+        await updateDoc(docRef, dataToSave);
       } else {
-        const newBlogData = {
-          ...form,
+        await addDoc(collection(db, "blogs"), {
+          ...dataToSave,
           date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
           views: 0,
-        };
-        const docRef = await addDoc(collection(db, "blogs"), newBlogData);
-        setBlogs((prev) => [{ id: docRef.id, ...newBlogData }, ...prev]);
+        });
       }
       setShowModal(false);
     } catch (err) {
@@ -146,10 +165,29 @@ export default function BlogManager() {
   const handleDelete = async (id) => {
     try {
       await deleteDoc(doc(db, "blogs", id));
-      setBlogs((prev) => prev.filter((b) => b.id !== id));
     } catch (err) {
       console.error("Failed to delete blog:", err);
     }
+  };
+
+  const handleConfirmEdit = (blog) => {
+    setConfirmEditBlog(blog);
+  };
+
+  const executeEdit = () => {
+    if (!confirmEditBlog) return;
+    openEdit(confirmEditBlog);
+    setConfirmEditBlog(null);
+  };
+
+  const handleConfirmDelete = (blog) => {
+    setConfirmDeleteBlog(blog);
+  };
+
+  const executeDelete = async () => {
+    if (!confirmDeleteBlog) return;
+    await handleDelete(confirmDeleteBlog.id);
+    setConfirmDeleteBlog(null);
   };
 
   return (
@@ -249,16 +287,16 @@ export default function BlogManager() {
                   <td className="px-4 py-3.5 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <button
-                        onClick={() => openEdit(blog)}
+                        onClick={() => handleConfirmEdit(blog)}
                         className="p-1.5 rounded-lg hover:bg-purple-100 text-purple-600 transition-colors"
-                        title="Edit"
+                        title="Edit Post"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                       </button>
                       <button
-                        onClick={() => handleDelete(blog.id)}
+                        onClick={() => handleConfirmDelete(blog)}
                         className="p-1.5 rounded-lg hover:bg-red-100 text-red-500 transition-colors"
-                        title="Delete"
+                        title="Delete Post"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -381,11 +419,23 @@ export default function BlogManager() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Content</label>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Short Excerpt / Summary</label>
+                  <input
+                    type="text"
+                    value={form.excerpt}
+                    onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
+                    placeholder="Brief 1-2 sentence summary of the blog post..."
+                    className="w-full px-4 py-2.5 rounded-xl border border-purple-100 text-[13px] font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400/40 focus:border-purple-300 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Full Article Content</label>
                   <textarea
-                    rows={4}
-                    placeholder="Write your blog content here..."
-                    className="w-full px-4 py-2.5 rounded-xl border border-purple-100 text-[13px] font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400/40 focus:border-purple-300 transition-all resize-none"
+                    rows={7}
+                    value={form.content}
+                    onChange={(e) => setForm({ ...form, content: e.target.value })}
+                    placeholder="Write your full blog article content here... (Multiple paragraphs, bullet points, or HTML content supported)"
+                    className="w-full px-4 py-2.5 rounded-xl border border-purple-100 text-[13px] font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400/40 focus:border-purple-300 transition-all resize-y min-h-[140px]"
                   />
                 </div>
               </div>
@@ -402,6 +452,94 @@ export default function BlogManager() {
                   className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-700 text-white text-[12px] font-bold shadow-md shadow-purple-500/25 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
                 >
                   {editingBlog ? "Update Post" : "Publish Post"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── Delete Confirmation Modal ─── */}
+      <AnimatePresence>
+        {confirmDeleteBlog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[110] flex items-center justify-center p-4"
+            onClick={() => setConfirmDeleteBlog(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 border border-red-100 text-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4 border border-red-200 shadow-inner">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-extrabold text-slate-900 font-heading">Delete Blog Post</h3>
+              <p className="text-[13px] text-slate-600 mt-2 font-medium leading-relaxed">
+                Are you sure you want to delete <span className="font-bold text-slate-900">"{confirmDeleteBlog.title}"</span>? This action cannot be undone.
+              </p>
+              <div className="flex items-center justify-center gap-3 mt-6">
+                <button
+                  onClick={() => setConfirmDeleteBlog(null)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-[12px] font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={executeDelete}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white text-[12px] font-bold shadow-md shadow-red-500/25 hover:shadow-lg hover:shadow-red-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                >
+                  Confirm Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── Edit Confirmation Modal ─── */}
+      <AnimatePresence>
+        {confirmEditBlog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[110] flex items-center justify-center p-4"
+            onClick={() => setConfirmEditBlog(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 border border-purple-100 text-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mx-auto mb-4 border border-purple-200 shadow-inner">
+                <HelpCircle className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="text-lg font-extrabold text-slate-900 font-heading">Edit Blog Post</h3>
+              <p className="text-[13px] text-slate-600 mt-2 font-medium leading-relaxed">
+                Are you sure you want to edit <span className="font-bold text-slate-900">"{confirmEditBlog.title}"</span>?
+              </p>
+              <div className="flex items-center justify-center gap-3 mt-6">
+                <button
+                  onClick={() => setConfirmEditBlog(null)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-[12px] font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={executeEdit}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-700 text-white text-[12px] font-bold shadow-md shadow-purple-500/25 hover:shadow-lg hover:shadow-purple-500/35 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                >
+                  Confirm & Edit
                 </button>
               </div>
             </motion.div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import SectionHeading from "../SectionHeading";
-import { X, Calendar, Tag } from "lucide-react";
+import { X, Calendar, Tag, BookOpen } from "lucide-react";
 import { db, collection, getDocs } from "../../firebase";
 
 const BLOGS = [
@@ -118,13 +118,13 @@ const VISIBLE_CARDS = 3;
 const AUTO_SLIDE_INTERVAL = 5000;
 
 /* ─── Blog Card (shared between desktop & mobile) ─── */
-function BlogCard({ blog, onReadMore, className = "" }) {
+function BlogCard({ blog, className = "" }) {
   return (
     <div
       className={`group bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col ${className}`}
     >
       {/* Blog Image */}
-      <div className="relative overflow-hidden aspect-[16/10]">
+      <Link to={`/blog/${blog.id}`} className="relative overflow-hidden aspect-[16/10] block">
         <img
           src={blog.image}
           alt={blog.title}
@@ -137,7 +137,7 @@ function BlogCard({ blog, onReadMore, className = "" }) {
           </span>
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-purple-950/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      </div>
+      </Link>
 
       {/* Blog Content */}
       <div className="flex flex-col flex-1 p-5 md:p-6">
@@ -145,14 +145,14 @@ function BlogCard({ blog, onReadMore, className = "" }) {
           {blog.date}
         </span>
         <h3 className="text-sm md:text-[15px] font-bold text-slate-900 leading-snug mb-3 line-clamp-2 group-hover:text-purple-700 transition-colors duration-300">
-          {blog.title}
+          <Link to={`/blog/${blog.id}`}>{blog.title}</Link>
         </h3>
         <p className="text-slate-500 text-xs md:text-[13px] leading-relaxed mb-5 line-clamp-3 flex-1">
-          {blog.excerpt}
+          {blog.excerpt || blog.title}
         </p>
-        <button
-          onClick={() => onReadMore(blog)}
-          className="inline-flex items-center justify-center gap-2 w-full bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs md:text-sm px-5 py-3 rounded-lg shadow-md shadow-purple-700/20 hover:shadow-purple-700/40 transition-all duration-300 uppercase tracking-wider group/btn cursor-pointer"
+        <Link
+          to={`/blog/${blog.id}`}
+          className="inline-flex items-center justify-center gap-2 w-full bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs md:text-sm px-5 py-3 rounded-lg shadow-md shadow-purple-700/20 hover:shadow-purple-700/40 transition-all duration-300 uppercase tracking-wider group/btn cursor-pointer text-center"
         >
           Read More
           <svg
@@ -164,14 +164,14 @@ function BlogCard({ blog, onReadMore, className = "" }) {
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
           </svg>
-        </button>
+        </Link>
       </div>
     </div>
   );
 }
 
 /* ─── Mobile Horizontal Slider (visible below md / 768px) ─── */
-function MobileSlider({ blogs, onReadMore }) {
+function MobileSlider({ blogs }) {
   const scrollRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -219,7 +219,7 @@ function MobileSlider({ blogs, onReadMore }) {
             className="flex-shrink-0 snap-start"
             style={{ width: "calc(100vw - 56px)" }}
           >
-            <BlogCard blog={blog} onReadMore={onReadMore} />
+            <BlogCard blog={blog} />
           </div>
         ))}
       </div>
@@ -244,7 +244,7 @@ function MobileSlider({ blogs, onReadMore }) {
 }
 
 /* ─── Desktop Slider (visible on md+ / 768px and above) ─── */
-function DesktopSlider({ blogs, onReadMore }) {
+function DesktopSlider({ blogs }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(1);
   const [isPaused, setIsPaused] = useState(false);
@@ -308,7 +308,7 @@ function DesktopSlider({ blogs, onReadMore }) {
           transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           {visibleBlogs.map((blog) => (
-            <BlogCard key={blog.id} blog={blog} onReadMore={onReadMore} />
+            <BlogCard key={blog.id} blog={blog} />
           ))}
         </motion.div>
       </div>
@@ -338,7 +338,6 @@ function DesktopSlider({ blogs, onReadMore }) {
 /* ─── Main Export ─── */
 export default function LatestBlogs() {
   const [blogsList, setBlogsList] = useState([]);
-  const [selectedBlog, setSelectedBlog] = useState(null);
 
   useEffect(() => {
     const loadBlogs = async () => {
@@ -374,18 +373,6 @@ export default function LatestBlogs() {
     };
   }, []);
 
-  // Prevent scroll when modal is open
-  useEffect(() => {
-    if (selectedBlog) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [selectedBlog]);
-
   return (
     <section id="blogs" className="relative py-20 md:py-28 bg-white overflow-hidden scroll-mt-20">
       {/* Subtle dot pattern */}
@@ -408,94 +395,11 @@ export default function LatestBlogs() {
         />
 
         {/* ─── Mobile: Horizontal scroll slider ─── */}
-        {blogsList.length > 0 && <MobileSlider blogs={blogsList} onReadMore={setSelectedBlog} />}
+        {blogsList.length > 0 && <MobileSlider blogs={blogsList} />}
 
         {/* ─── Desktop: 3-col animated slider ─── */}
-        {blogsList.length > 0 && <DesktopSlider blogs={blogsList} onReadMore={setSelectedBlog} />}
+        {blogsList.length > 0 && <DesktopSlider blogs={blogsList} />}
       </div>
-
-      {/* ─── Blog Modal ─── */}
-      <AnimatePresence>
-        {selectedBlog && (
-          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
-            {/* Backdrop overlay */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedBlog(null)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md cursor-pointer"
-            />
-
-            {/* Modal Dialog container */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: "spring", duration: 0.5 }}
-              className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden relative flex flex-col border border-purple-100/50 z-10 animate-fade-in"
-            >
-              {/* Header Image section */}
-              <div className="relative h-48 sm:h-64 w-full flex-shrink-0 overflow-hidden">
-                <img
-                  src={selectedBlog.image}
-                  alt={selectedBlog.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent" />
-                
-                {/* Category badge */}
-                <div className="absolute bottom-4 left-6 flex flex-wrap items-center gap-2">
-                  <span className="bg-purple-600 text-white text-[10px] sm:text-[11px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-md border border-purple-500/30">
-                    {selectedBlog.category}
-                  </span>
-                  <span className="text-white/80 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-purple-300" />
-                    {selectedBlog.date}
-                  </span>
-                </div>
-
-                {/* Close Button */}
-                <button
-                  onClick={() => setSelectedBlog(null)}
-                  className="absolute top-4 right-4 bg-white/90 hover:bg-white text-slate-800 hover:text-purple-750 w-9 h-9 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 z-20 cursor-pointer"
-                  aria-label="Close modal"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Main Content Body */}
-              <div className="p-6 sm:p-8 overflow-y-auto flex-1">
-                <h3 className="text-lg sm:text-2xl font-black text-slate-900 leading-snug tracking-tight mb-4">
-                  {selectedBlog.title}
-                </h3>
-                
-                <div className="border-b border-slate-100 my-4" />
-
-                {/* Rich text HTML rendering */}
-                <div
-                  className="text-slate-600 text-xs sm:text-sm leading-relaxed space-y-4"
-                  dangerouslySetInnerHTML={{ __html: selectedBlog.content }}
-                />
-
-                <div className="border-t border-slate-100 mt-6 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-purple-700">
-                    <Tag className="w-4 h-4 animate-pulse" />
-                    <span>Sarvadnya Vidyapeeth Blog Desk</span>
-                  </div>
-                  <button
-                    onClick={() => setSelectedBlog(null)}
-                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-800 to-indigo-900 text-white font-bold text-xs sm:text-sm px-6 py-2.5 rounded-xl shadow-md shadow-purple-900/20 hover:shadow-lg hover:shadow-purple-900/30 transition-all duration-200 active:scale-95 cursor-pointer"
-                  >
-                    Close Article
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }
