@@ -35,7 +35,7 @@ export default function SettingsPanel() {
     facebook: "https://facebook.com/sarvadnyavidyapeeth",
     instagram: "https://instagram.com/sarvadnyavidyapeeth",
     twitter: "https://twitter.com/sv_patna",
-    linkedin: "https://linkedin.com/company/sarvadnya-vidyapeeth",
+    linkedin: "https://www.linkedin.com/in/sarvadnya-vidyapeeth-patna",
     youtube: "https://youtube.com/@sarvadnyavidyapeeth",
   });
 

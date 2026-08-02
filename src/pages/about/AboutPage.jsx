@@ -137,11 +137,11 @@ export default function AboutPage() {
 
                 {/* Tintern Trust Header */}
                 <div className="flex items-center gap-4 mb-6 pb-4 border-b border-purple-100/60">
-                  <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center p-1 shadow-sm border border-purple-100 flex-shrink-0 overflow-hidden">
+                  <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center p-1 shadow-sm border border-purple-100 flex-shrink-0 overflow-hidden">
                     <img
                       src="/images/silvassa.webp"
                       alt="Tintern Charitable Trust Logo"
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-contain rounded-full"
                     />
                   </div>
                   <div>
@@ -319,24 +319,24 @@ export default function AboutPage() {
 
           <div className="grid md:grid-cols-3 gap-8 text-left mb-12">
             {[
-              {
-                initials: "RP",
-                name: "Shri. Ramesh Patil",
-                role: "Patron, Sarvadnya Group",
-                desc: "A visionary educationist dedicated to bringing world-class learning infrastructure and technology-driven pedagogy to Bihar.",
-                gradient: "from-orange-500 to-purple-600"
-              },
-              {
-                initials: "SP",
-                name: "Dr. Sanjay Patil",
-                role: "President & Chancellor",
-                desc: "Academic leader focused on global partnerships, research excellence, and creating industry-ready professionals.",
-                gradient: "from-purple-600 to-purple-800"
-              },
+              // {
+              //   initials: "RP",
+              //   name: "Shri. Ramesh Patil",
+              //   role: "Patron, Sarvadnya Group",
+              //   desc: "A visionary educationist dedicated to bringing world-class learning infrastructure and technology-driven pedagogy to Bihar.",
+              //   gradient: "from-orange-500 to-purple-600"
+              // },
+              // {
+              //   initials: "SP",
+              //   name: "Dr. Sanjay Patil",
+              //   role: "President & Chancellor",
+              //   desc: "Academic leader focused on global partnerships, research excellence, and creating industry-ready professionals.",
+              //   gradient: "from-purple-600 to-purple-800"
+              // },
               {
                 initials: "SD",
-                name: "Prof. Dr. Sunita Deshmukh",
-                role: "Principal & Vice Chancellor",
+                name: "Prof. Ram Krishna Singh",
+                role: "Principal",
                 desc: "Leading the academic council with passion for multi-disciplinary curricula, value-based learning, and comprehensive research.",
                 gradient: "from-amber-500 to-orange-500"
               }

@@ -16,6 +16,9 @@ import ContactPage from "./pages/ContactPage"
 import MandatoryDisclosurePage from "./pages/MandatoryDisclosurePage"
 import BlogDetailPage from "./pages/BlogDetailPage"
 import AdminPanel from "./components/admin/AdminPanel"
+import StudentLogin from "./components/ERP/studentLogin/StudentLogin"
+import StaffLogin from "./components/ERP/staffLogin/StaffLogin"
+import StudentERP from "./components/ERP/studentDashboard/StudentERP"
 
 function App() {
   return (
@@ -38,6 +41,13 @@ function App() {
           <Route path="blog/:id" element={<BlogDetailPage />} />
           <Route path="blogs/:id" element={<BlogDetailPage />} />
         </Route>
+        {/* Dedicated ERP Login Pages */}
+        <Route path="/student" element={<StudentLogin />} />
+        <Route path="/student-login" element={<StudentLogin />} />
+        <Route path="/staff" element={<StaffLogin />} />
+        <Route path="/staff-login" element={<StaffLogin />} />
+        {/* Student ERP Dashboard — separate layout */}
+        <Route path="/student-dashboard/*" element={<StudentERP />} />
         {/* Admin Panel — separate layout (no Navbar/Footer) */}
         <Route path="/adminpanel/*" element={<AdminPanel />} />
       </Routes>

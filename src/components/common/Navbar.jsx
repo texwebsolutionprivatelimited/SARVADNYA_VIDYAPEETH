@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Children } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronDown, Menu, X } from "lucide-react";
 
@@ -31,6 +31,13 @@ const NAV_ITEMS = [
       { label: "Events ", path: "/events" }
     ],
   },
+  {
+    label: "LOGIN",
+    children: [
+      { label: "Students Login", path: "/student" },
+      { label: "Staff Login", path: "/staff" }
+    ]
+  }
 ];
 
 const isPathActive = (itemPath, currentPath) => {
