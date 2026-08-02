@@ -139,9 +139,9 @@ export default function AboutPage() {
                 <div className="flex items-center gap-4 mb-6 pb-4 border-b border-purple-100/60">
                   <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center p-1 shadow-sm border border-purple-100 flex-shrink-0 overflow-hidden">
                     <img
-                      src="/images/silvassa.webp"
+                      src="/images/tintern_logo_nobg.png"
                       alt="Tintern Charitable Trust Logo"
-                      className="w-full h-full object-contain rounded-full"
+                      className="w-full h-full object-contain"
                     />
                   </div>
                   <div>
@@ -317,22 +317,9 @@ export default function AboutPage() {
             align="center"
           />
 
-          <div className="grid md:grid-cols-3 gap-8 text-left mb-12">
+          <div className="flex justify-center items-center gap-8 text-left mb-12">
             {[
-              // {
-              //   initials: "RP",
-              //   name: "Shri. Ramesh Patil",
-              //   role: "Patron, Sarvadnya Group",
-              //   desc: "A visionary educationist dedicated to bringing world-class learning infrastructure and technology-driven pedagogy to Bihar.",
-              //   gradient: "from-orange-500 to-purple-600"
-              // },
-              // {
-              //   initials: "SP",
-              //   name: "Dr. Sanjay Patil",
-              //   role: "President & Chancellor",
-              //   desc: "Academic leader focused on global partnerships, research excellence, and creating industry-ready professionals.",
-              //   gradient: "from-purple-600 to-purple-800"
-              // },
+
               {
                 initials: "SD",
                 name: "Prof. Ram Krishna Singh",
@@ -343,7 +330,7 @@ export default function AboutPage() {
             ].map((leader, idx) => (
               <div
                 key={idx}
-                className="bg-slate-50 rounded-3xl p-8 border border-slate-100 shadow-xs hover:shadow-md transition-shadow text-center group border border-slate-200/50"
+                className="bg-slate-50 rounded-3xl p-8 border border-slate-100 shadow-xs hover:shadow-md transition-shadow text-center group border border-slate-200/50 max-w-md w-full"
               >
                 {/* Avatar */}
                 <div className="relative mx-auto mb-6 w-20 h-20">

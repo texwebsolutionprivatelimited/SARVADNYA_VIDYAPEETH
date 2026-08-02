@@ -61,9 +61,14 @@ export default function MandatoryDisclosurePage() {
                 2. Society / Trust Details
               </h2>
               <div className="grid md:grid-cols-2 gap-6 text-sm">
-                <div>
-                  <span className="text-slate-400 font-bold block text-[10px] uppercase tracking-wider">Name of the Society / Trust</span>
-                  <span className="text-slate-800 font-bold text-base">TINTERN CHARITABLE TRUST</span>
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-200 p-1 flex-shrink-0 flex items-center justify-center shadow-sm">
+                    <img src="/images/tintern_logo_nobg.png" alt="Tintern Charitable Trust Logo" className="w-full h-full object-contain" />
+                  </div>
+                  <div>
+                    <span className="text-slate-400 font-bold block text-[10px] uppercase tracking-wider">Name of the Society / Trust</span>
+                    <span className="text-slate-800 font-bold text-base">TINTERN CHARITABLE TRUST</span>
+                  </div>
                 </div>
                 <div>
                   <span className="text-slate-400 font-bold block text-[10px] uppercase tracking-wider">Trust Address</span>
