@@ -95,7 +95,7 @@ export default function MandatoryDisclosurePage() {
                 </div>
                 <div>
                   <span className="text-slate-400 font-bold block text-[10px] uppercase tracking-wider">Affiliating University</span>
-                  <span className="text-slate-800 font-bold text-base">Aryabhatta Knowledge University, Patna</span>
+                  {/* <span className="text-slate-800 font-bold text-base">Aryabhatta Knowledge University, Patna</span> */}
                 </div>
               </div>
             </div>

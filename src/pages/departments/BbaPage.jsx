@@ -31,7 +31,7 @@ export default function BbaPage() {
     { label: "Duration", value: 3, suffix: " Years", icon: Calendar, desc: "Full-Time UG Course" },
     { label: "Semesters", value: 6, suffix: " Semesters", icon: BookOpen, desc: "Choice Based Credit Sys" },
     { label: "Eligibility", value: "12th Pass", suffix: "", isText: true, icon: GraduationCap, desc: "Any Stream (Min 45%)" },
-    { label: "Affiliation", value: "AKU Patna", suffix: "", isText: true, icon: Award, desc: "State Gov University" },
+    // { label: "Affiliation", value: "AKU Patna", suffix: "", isText: true, icon: Award, desc: "State Gov University" },
     { label: "Approved Intake", value: 120, suffix: " Seats", icon: Users, desc: "Annual Batch Size" },
   ];
 

@@ -319,12 +319,18 @@ export default function AboutPage() {
 
           <div className="flex justify-center items-center gap-8 text-left mb-12">
             {[
-
               {
-                initials: "SD",
+                initials: "PK",
+                name: "Prof. Parimal Kumar",
+                role: "Co-Founder & Project Head",
+                desc: "Spearheading strategic development, institutional expansion, and industry partnerships to deliver innovative, career-focused education.",
+                gradient: "from-purple-600 to-indigo-600"
+              },
+              {
+                initials: "RKS",
                 name: "Prof. Ram Krishna Singh",
                 role: "Principal",
-                desc: "Leading the academic council with passion for multi-disciplinary curricula, value-based learning, and comprehensive research.",
+                desc: "Leading academic governance, curriculum design, and faculty development with a dedicated focus on holistic student growth and excellence.",
                 gradient: "from-amber-500 to-orange-500"
               }
             ].map((leader, idx) => (

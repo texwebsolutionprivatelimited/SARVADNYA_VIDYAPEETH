@@ -187,7 +187,7 @@ export default function AdminLayout() {
                 {currentPage?.label || "Admin Panel"}
               </h1>
               <span className="text-[9.5px] text-amber-600 font-extrabold tracking-wider uppercase hidden sm:block">
-                Sarvadnya Vidyapeeth • Affiliated to AKU, Patna
+                Sarvadnya Vidyapeeth {/* • Affiliated to AKU, Patna */}
               </span>
             </div>
           </div>

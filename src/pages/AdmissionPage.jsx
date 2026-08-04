@@ -187,10 +187,10 @@ export default function AdmissionPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative z-20 text-left">
           {/* Top badges */}
           <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
-            <span className="bg-purple-600/90 text-white font-extrabold text-[8px] xs:text-[9px] sm:text-[10px] md:text-xs uppercase tracking-widest px-2.5 sm:px-3 md:px-4 py-1 sm:py-1.5 rounded-full border border-purple-500 shadow-lg inline-flex items-center gap-1 sm:gap-1.5">
+            {/* <span className="bg-purple-600/90 text-white font-extrabold text-[8px] xs:text-[9px] sm:text-[10px] md:text-xs uppercase tracking-widest px-2.5 sm:px-3 md:px-4 py-1 sm:py-1.5 rounded-full border border-purple-500 shadow-lg inline-flex items-center gap-1 sm:gap-1.5">
               <Award className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
               <span className="hidden xs:inline">Affiliated to </span>Aryabhatta University
-            </span>
+            </span> */}
             <span className="bg-white/10 backdrop-blur-md text-white font-extrabold text-[8px] xs:text-[9px] sm:text-[10px] md:text-xs uppercase tracking-widest px-2.5 sm:px-3 md:px-4 py-1 sm:py-1.5 rounded-full border border-white/20 inline-flex items-center gap-1 sm:gap-1.5">
               <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
               <span className="hidden xs:inline">Beur-Betaura Road, </span>Patna
@@ -213,7 +213,7 @@ export default function AdmissionPage() {
           </div>
 
           <blockquote className="border-l-4 border-purple-500 pl-3 sm:pl-4 py-1 text-xs sm:text-base md:text-lg font-semibold text-slate-300 italic max-w-3xl mb-6 sm:mb-8">
-            "Secure Your Seat in Bihar's Premier IT & Management Institute — Affiliated with Aryabhatta Knowledge University (AKU), Patna"
+            "Secure Your Seat in Bihar's Premier IT & Management Institute {/* — Affiliated with Aryabhatta Knowledge University (AKU), Patna */}"
           </blockquote>
 
           <p className="text-xs sm:text-sm md:text-base text-slate-300 leading-relaxed max-w-4xl font-normal">

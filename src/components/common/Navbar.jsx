@@ -149,12 +149,12 @@ export default function Navbar() {
                   <span className="text-purple-950 font-black text-[12px] xs:text-[13.5px] sm:text-[15px] min-[1440px]:text-[16px] leading-tight tracking-wider uppercase font-heading">
                     Sarvadnya Vidyapeeth
                   </span>
-                  <span className="text-amber-600 text-[7px] xs:text-[7.5px] font-black tracking-widest leading-none uppercase block max-[340px]:hidden sm:hidden lg:block xl:hidden">
+                  {/* <span className="text-amber-600 text-[7px] xs:text-[7.5px] font-black tracking-widest leading-none uppercase block max-[340px]:hidden sm:hidden lg:block xl:hidden">
                     Affiliated to AKU, Patna
-                  </span>
-                  <span className="text-amber-600 text-[8.5px] min-[1440px]:text-[9px] font-black tracking-widest leading-none uppercase hidden sm:block lg:hidden xl:block">
+                  </span> */}
+                  {/* <span className="text-amber-600 text-[8.5px] min-[1440px]:text-[9px] font-black tracking-widest leading-none uppercase hidden sm:block lg:hidden xl:block">
                     Patna • Affiliated to Aryabhatta Knowledge University, Patna
-                  </span>
+                  </span> */}
                 </div>
               </div>
             </Link>

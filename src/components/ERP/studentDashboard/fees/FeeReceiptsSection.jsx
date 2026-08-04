@@ -146,9 +146,9 @@ export default function FeeReceiptsSection() {
                   <h2 className="text-lg font-extrabold text-purple-900 tracking-wide">
                     SARVADNYA VIDYAPEETH
                   </h2>
-                  <p className="text-[11px] font-medium text-gray-600">
+                  {/* <p className="text-[11px] font-medium text-gray-600">
                     Affiliated to Aryabhatta Knowledge University, Patna
-                  </p>
+                  </p> */}
                   <p className="text-[10px] text-gray-500">
                     Campus Address: Main Road, Patna, Bihar - 800001 | Phone: +91 9876543210
                   </p>

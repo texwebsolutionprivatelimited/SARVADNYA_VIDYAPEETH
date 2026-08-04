@@ -190,7 +190,7 @@ export default function Hero() {
               <strong className="block text-amber-400 font-black tracking-wider text-sm sm:text-base mb-2 font-sans uppercase">
                 BCA | BBA | Skill-Based Higher Education
               </strong>
-              Affiliated to Aryabhatta Knowledge University, Patna. Providing affordable, progressive, and employment-oriented education with practical training, experienced faculty, and career guidance.
+              {/* Affiliated to Aryabhatta Knowledge University, Patna. */} Providing affordable, progressive, and employment-oriented education with practical training, experienced faculty, and career guidance.
             </p>
 
             {/* Buttons component */}

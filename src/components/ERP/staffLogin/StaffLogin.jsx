@@ -92,7 +92,7 @@ export default function StaffLogin() {
               Sarvadnya Vidyapeeth
             </span>
             <span className="text-indigo-700 text-[10px] sm:text-[11px] font-bold tracking-widest uppercase">
-              Staff & Faculty ERP Portal • AKU Patna
+              Staff & Faculty ERP Portal {/* • AKU Patna */}
             </span>
           </div>
         </Link>
@@ -433,7 +433,7 @@ export default function StaffLogin() {
       <footer className="relative z-10 border-t border-slate-200 bg-white/90 backdrop-blur-md py-3.5 px-6 sm:px-12 w-full">
         <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-2.5 text-[11.5px] text-slate-600">
           <p className="text-center sm:text-left font-medium">
-            Copyright © {new Date().getFullYear()} <span className="text-slate-900 font-semibold">Sarvadnya Vidyapeeth , Affiliated to Aryabhatta Knowledge University, Patna</span>. All rights reserved.
+            Copyright © {new Date().getFullYear()} <span className="text-slate-900 font-semibold">Sarvadnya Vidyapeeth {/* , Affiliated to Aryabhatta Knowledge University, Patna */}</span>. All rights reserved.
           </p>
           <p className="text-center sm:text-right text-[11px] text-slate-500">
             Designed &amp; Developed by{" "}

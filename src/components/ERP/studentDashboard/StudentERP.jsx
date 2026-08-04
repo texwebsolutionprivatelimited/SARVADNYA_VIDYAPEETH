@@ -387,7 +387,7 @@ export default function StudentERP() {
         {/* Footer */}
         <footer className="border-t border-gray-200 bg-white px-6 py-2.5 text-center mt-auto">
           <p className="text-[10px] text-gray-400">
-            © {new Date().getFullYear()} Sarvadnya Vidyapeeth, Affiliated to Aryabhatta Knowledge University, Patna | Powered by{" "}
+            © {new Date().getFullYear()} Sarvadnya Vidyapeeth {/* , Affiliated to Aryabhatta Knowledge University, Patna */} | Powered by{" "}
             <a href="https://texwebsolution.in" target="_blank" rel="noopener noreferrer" className="text-purple-600 font-bold hover:underline">
               Texweb Solution Pvt. Ltd.
             </a>

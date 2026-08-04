@@ -24,7 +24,8 @@ export default function SettingsPanel() {
 
   const [general, setGeneral] = useState({
     collegeName: "Sarvadnya Vidyapeeth",
-    tagline: "Affiliated to Aryabhatta Knowledge University, Patna",
+    // tagline: "Affiliated to Aryabhatta Knowledge University, Patna",
+    tagline: "",
     phone: "+91 99553 30733",
     email: "info@sarvadnyavidyapeeth.in",
     address: "Plot No - 2258, Beur-Betauda Road, Anishabad, Patna (Bihar) - 800002",

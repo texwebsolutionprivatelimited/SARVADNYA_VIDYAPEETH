@@ -32,7 +32,8 @@ export const studentProfile = {
   admissionType: "Regular",
   status: "Active",
   collegeName: "Sarvadnya Vidyapeeth",
-  universityName: "Aryabhatta Knowledge University, Patna",
+  // universityName: "Aryabhatta Knowledge University, Patna",
+  universityName: "",
 
   // Educational — 12th
   twelfthBoard: "BSEB (Bihar School Examination Board)",

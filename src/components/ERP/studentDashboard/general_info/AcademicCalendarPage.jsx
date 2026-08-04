@@ -96,7 +96,7 @@ const academicEvents = [
     day: 1,
     category: "Examination",
     badgeColor: "bg-amber-100 text-amber-800 border-amber-200",
-    description: "AKU Patna affiliating university semester end examinations.",
+    description: "Semester end examinations.", // AKU Patna affiliating university
   },
 ];
 
