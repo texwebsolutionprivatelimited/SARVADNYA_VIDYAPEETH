@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Routes, Route, NavLink, useNavigate, Navigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -33,6 +33,11 @@ import {
   Search,
   Settings,
   BarChart3,
+  CheckCheck,
+  Trash2,
+  Megaphone,
+  CalendarCheck,
+  Clock as ClockIcon,
 } from "lucide-react";
 
 import ERPDashboard from "./ERPDashboard";
@@ -49,6 +54,241 @@ import AcademicCalendarPage from "./general_info/AcademicCalendarPage";
 import NoticesPage from "./communication/NoticesPage";
 import QueryFacultyPage from "./communication/QueryFacultyPage";
 import { studentProfile } from "../../../hooks/studentPortalData";
+import { NotificationProvider, useNotifications } from "../../common/NotificationContext";
+
+/* ── Notification type → icon & color mapping ── */
+const notifTypeConfig = {
+  exam_form: { icon: FileText, color: "text-orange-500", bg: "bg-orange-50", border: "border-orange-200", label: "Exam Form" },
+  result: { icon: Award, color: "text-emerald-500", bg: "bg-emerald-50", border: "border-emerald-200", label: "Result" },
+  notice: { icon: Megaphone, color: "text-blue-500", bg: "bg-blue-50", border: "border-blue-200", label: "Notice" },
+  fees: { icon: IndianRupee, color: "text-red-500", bg: "bg-red-50", border: "border-red-200", label: "Fees" },
+  attendance: { icon: BarChart3, color: "text-amber-500", bg: "bg-amber-50", border: "border-amber-200", label: "Attendance" },
+  placement: { icon: Briefcase, color: "text-purple-500", bg: "bg-purple-50", border: "border-purple-200", label: "Placement" },
+  timetable: { icon: CalendarCheck, color: "text-indigo-500", bg: "bg-indigo-50", border: "border-indigo-200", label: "Timetable" },
+  library: { icon: BookOpen, color: "text-teal-500", bg: "bg-teal-50", border: "border-teal-200", label: "Library" },
+};
+
+function getTimeAgo(timestamp) {
+  const diff = Date.now() - new Date(timestamp).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(timestamp).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+}
+
+/* ── Notification Bell Component ── */
+function NotificationBell() {
+  const navigate = useNavigate();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, dismissNotification, clearAll } = useNotifications();
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const buttonRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(e.target)
+      ) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [isOpen]);
+
+  const handleNotificationClick = useCallback(
+    (notif) => {
+      if (!notif.read) {
+        markAsRead(notif.id);
+      }
+      setIsOpen(false);
+      navigate(notif.route);
+    },
+    [markAsRead, navigate]
+  );
+
+  return (
+    <div className="relative">
+      {/* Bell Button */}
+      <button
+        ref={buttonRef}
+        onClick={() => setIsOpen((prev) => !prev)}
+        className={`relative p-2 rounded-lg transition-all duration-200 ${isOpen
+            ? "bg-purple-50 text-purple-600"
+            : "hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+          }`}
+        aria-label="Notifications"
+      >
+        <Bell className={`w-5 h-5 ${unreadCount > 0 ? "animate-[bellSwing_2s_ease-in-out_infinite]" : ""}`} />
+        {unreadCount > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 flex items-center justify-center px-1 text-[10px] font-extrabold text-white bg-red-500 rounded-full shadow-lg shadow-red-200 ring-2 ring-white animate-[badgePulse_2s_ease-in-out_infinite]">
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </span>
+        )}
+      </button>
+
+      {/* Dropdown */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            ref={dropdownRef}
+            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.96 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute right-0 top-full mt-2 w-[380px] max-h-[480px] bg-white rounded-2xl border border-gray-200 shadow-2xl shadow-gray-200/60 z-[100] overflow-hidden flex flex-col"
+          >
+            {/* Header */}
+            <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-indigo-50 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-purple-600 flex items-center justify-center">
+                  <Bell className="w-3.5 h-3.5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-800">Notifications</h3>
+                  {unreadCount > 0 && (
+                    <p className="text-[10px] text-purple-600 font-semibold">
+                      {unreadCount} unread
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllAsRead}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-purple-600 hover:bg-purple-100 transition-colors"
+                    title="Mark all as read"
+                  >
+                    <CheckCheck className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Mark all read</span>
+                  </button>
+                )}
+                {notifications.length > 0 && (
+                  <button
+                    onClick={() => {
+                      clearAll();
+                      setIsOpen(false);
+                    }}
+                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                    title="Clear all"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Notification List */}
+            <div className="flex-1 overflow-y-auto overscroll-contain" style={{ maxHeight: '380px' }}>
+              {notifications.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 px-4">
+                  <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-3">
+                    <Bell className="w-7 h-7 text-gray-300" />
+                  </div>
+                  <p className="text-sm font-semibold text-gray-400">No notifications</p>
+                  <p className="text-[11px] text-gray-300 mt-1">You're all caught up!</p>
+                </div>
+              ) : (
+                <div className="py-1">
+                  {notifications.map((notif, index) => {
+                    const config = notifTypeConfig[notif.type] || notifTypeConfig.notice;
+                    const TypeIcon = config.icon;
+                    return (
+                      <motion.div
+                        key={notif.id}
+                        initial={{ opacity: 0, x: -12 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.03 }}
+                        className={`group relative px-3 py-2 mx-1 my-0.5 rounded-xl cursor-pointer transition-all duration-200 ${notif.read
+                            ? "hover:bg-gray-50"
+                            : `${config.bg} hover:bg-opacity-80 border ${config.border}`
+                          }`}
+                        onClick={() => handleNotificationClick(notif)}
+                      >
+                        <div className="flex items-start gap-2.5">
+                          {/* Icon */}
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${notif.read ? "bg-gray-100" : "bg-white shadow-sm"
+                            }`}>
+                            <TypeIcon className={`w-4 h-4 ${notif.read ? "text-gray-400" : config.color}`} />
+                          </div>
+
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              {!notif.read && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 animate-pulse"></span>
+                              )}
+                              <p className={`text-[11px] font-bold leading-snug truncate ${notif.read ? "text-gray-500" : "text-gray-800"
+                                }`}>
+                                {notif.title}
+                              </p>
+                            </div>
+                            <p className={`text-[10px] leading-snug mt-0.5 line-clamp-2 ${notif.read ? "text-gray-400" : "text-gray-600"
+                              }`}>
+                              {notif.message}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${notif.read ? "bg-gray-100 text-gray-400" : `${config.bg} ${config.color}`
+                                }`}>
+                                {config.label}
+                              </span>
+                              <span className="text-[9px] text-gray-400 flex items-center gap-0.5">
+                                <ClockIcon className="w-2.5 h-2.5" />
+                                {getTimeAgo(notif.timestamp)}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Dismiss */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              dismissNotification(notif.id);
+                            }}
+                            className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-500 transition-all shrink-0 mt-0.5"
+                            title="Dismiss"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            {notifications.length > 0 && (
+              <div className="px-4 py-2.5 border-t border-gray-100 bg-gray-50/80 shrink-0">
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    navigate("/student-dashboard/notices");
+                  }}
+                  className="w-full text-center text-[11px] font-bold text-purple-600 hover:text-purple-700 py-1 rounded-lg hover:bg-purple-50 transition-colors"
+                >
+                  View All Notices →
+                </button>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 /* ── Sidebar menu structure ── */
 const sidebarMenu = [
@@ -144,256 +384,255 @@ export default function StudentERP() {
   };
 
   return (
-    <div className="h-screen bg-gray-100 flex font-sans overflow-hidden">
-      {/* ── Mobile Overlay ── */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-      </AnimatePresence>
+    <NotificationProvider>
+      <div className="h-screen bg-gray-100 flex font-sans overflow-hidden">
+        {/* ── Mobile Overlay ── */}
+        <AnimatePresence>
+          {sidebarOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+        </AnimatePresence>
 
-      {/* ── Fixed Dark Sidebar ── */}
-      <aside
-        className={`fixed lg:sticky top-0 inset-y-0 left-0 z-50 w-[260px] h-screen bg-slate-800 flex flex-col shrink-0 transition-transform duration-300 ease-in-out overflow-y-auto sidebar-scroll ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-          }`}
-      >
-        {/* Sidebar Header */}
-        <div className="flex items-center gap-3 px-4 py-4 bg-slate-900/60 border-b border-slate-700/50 shrink-0">
-          <img
-            src="/images/Logo/logo.webp"
-            alt="Logo"
-            className="w-9 h-9 rounded-full bg-white p-0.5 object-contain"
-          />
-          <div className="flex-1 min-w-0">
-            <p className="text-white text-sm font-bold leading-tight truncate">
-              Sarvadnya Vidyapeeth
-            </p>
-            <p className="text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">
-              Student ERP
-            </p>
-          </div>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-1 rounded text-slate-400 hover:text-white"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Sidebar Menu */}
-        <nav className="flex-1 overflow-y-auto py-2 sidebar-scroll">
-          {sidebarMenu.map((item) => {
-            // Single link (no children)
-            if (!item.children) {
-              return (
-                <NavLink
-                  key={item.id}
-                  to={item.path}
-                  end
-                  onClick={() => setSidebarOpen(false)}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-2.5 mx-2 my-0.5 rounded-lg text-[13px] font-semibold transition-all duration-200 ${isActive
-                      ? "bg-purple-600 text-white shadow-lg shadow-purple-900/30"
-                      : "text-slate-300 hover:bg-slate-700/60 hover:text-white"
-                    }`
-                  }
-                >
-                  <item.icon className="w-[17px] h-[17px] flex-shrink-0" />
-                  <span>{item.label}</span>
-                </NavLink>
-              );
-            }
-
-            // Accordion parent
-            const isExpanded = expandedMenus.includes(item.id);
-            const hasActiveChild = item.children.some((c) => isActiveChild(c.path));
-
-            return (
-              <div key={item.id} className="mx-2 my-0.5">
-                <button
-                  onClick={() => toggleMenu(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-200 ${hasActiveChild
-                    ? "bg-slate-700/80 text-white"
-                    : "text-slate-300 hover:bg-slate-700/60 hover:text-white"
-                    }`}
-                >
-                  <item.icon className="w-[17px] h-[17px] flex-shrink-0" />
-                  <span className="flex-1 text-left">{item.label}</span>
-                  <motion.span
-                    animate={{ rotate: isExpanded ? 180 : 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <ChevronDown className="w-4 h-4 text-slate-400" />
-                  </motion.span>
-                </button>
-
-                <AnimatePresence initial={false}>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="pl-4 py-1 space-y-0.5">
-                        {item.children.map((child) => {
-                          const active = isActiveChild(child.path);
-                          return (
-                            <NavLink
-                              key={child.label}
-                              to={child.path}
-                              onClick={() => setSidebarOpen(false)}
-                              className={
-                                `flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12px] font-medium transition-all duration-150 ${active
-                                  ? "bg-purple-600/90 text-white font-bold shadow-md shadow-purple-950/40"
-                                  : "text-slate-400 hover:bg-slate-700/50 hover:text-slate-200"
-                                }`
-                              }
-                            >
-                              <child.icon className="w-[14px] h-[14px] flex-shrink-0" />
-                              <span>{child.label}</span>
-                            </NavLink>
-                          );
-                        })}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })}
-        </nav>
-
-        {/* Mentor & Logout Footer Section - Anchored at bottom of dark sidebar */}
-        <div className="mt-auto px-3 py-3 border-t border-slate-700/60 bg-slate-900/90 flex flex-col gap-2 shrink-0">
-          {/* Mentor Info */}
-          <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-800/90 border border-slate-700/50 shadow-inner">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white text-xs font-bold shrink-0 shadow">
-              {studentProfile.mentorName ? studentProfile.mentorName.split(" ").map((n) => n[0]).join("").slice(0, 2) : "PK"}
-            </div>
-            <div className="min-w-0 flex-1">
-              <span className="text-[9px] font-extrabold text-emerald-400 uppercase tracking-wider block leading-none">
-                Your Mentor
-              </span>
-              <p className="text-white text-xs font-bold truncate leading-tight mt-1">
-                {studentProfile.mentorName}
+        {/* ── Fixed Dark Sidebar ── */}
+        <aside
+          className={`fixed lg:sticky top-0 inset-y-0 left-0 z-50 w-[260px] h-screen bg-slate-800 flex flex-col shrink-0 transition-transform duration-300 ease-in-out overflow-y-auto sidebar-scroll ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+            }`}
+        >
+          {/* Sidebar Header */}
+          <div className="flex items-center gap-3 px-4 py-4 bg-slate-900/60 border-b border-slate-700/50 shrink-0">
+            <img
+              src="/images/Logo/logo.webp"
+              alt="Logo"
+              className="w-9 h-9 rounded-full bg-white p-0.5 object-contain"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="text-white text-sm font-bold leading-tight truncate">
+                Sarvadnya Vidyapeeth
+              </p>
+              <p className="text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">
+                Student ERP
               </p>
             </div>
-          </div>
-
-          {/* Logout Button */}
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-red-400 bg-red-500/10 hover:bg-red-500/20 hover:text-red-300 border border-red-500/20 transition-all shadow-sm active:scale-[0.98]"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Logout</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* ── Scrollable White Content Area ── */}
-      <div className="flex-1 flex flex-col h-screen min-w-0 overflow-y-auto">
-        {/* Top Header Bar */}
-        <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 sm:px-6 py-2.5 flex items-center justify-between shadow-sm shrink-0">
-          <div className="flex items-center gap-3">
             <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-500"
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden p-1 rounded text-slate-400 hover:text-white"
             >
-              <Menu className="w-5 h-5" />
+              <X className="w-5 h-5" />
             </button>
-            <div className="hidden sm:flex items-center gap-2">
-              <img
-                src="/images/Logo/logo.webp"
-                alt="Logo"
-                className="w-8 h-8 rounded-full bg-white border border-gray-200 p-0.5 object-contain"
-              />
-              <span className="text-base font-bold text-gray-800">
-                Sarvadnya Vidyapeeth
-              </span>
-            </div>
           </div>
 
-          {/* Student Info + Profile */}
-          <div className="flex items-center gap-3">
-            {/* Course Info */}
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200 text-xs">
-              <span className="font-bold text-gray-700">
-                {studentProfile.course} ({studentProfile.department})
-              </span>
-              <span className="text-gray-400">|</span>
-              <span className="text-gray-600">{studentProfile.semester}</span>
-              <span className="text-gray-400">|</span>
-              <span className="text-gray-600">Section - {studentProfile.section}</span>
+          {/* Sidebar Menu */}
+          <nav className="flex-1 overflow-y-auto py-2 sidebar-scroll">
+            {sidebarMenu.map((item) => {
+              // Single link (no children)
+              if (!item.children) {
+                return (
+                  <NavLink
+                    key={item.id}
+                    to={item.path}
+                    end
+                    onClick={() => setSidebarOpen(false)}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-4 py-2.5 mx-2 my-0.5 rounded-lg text-[13px] font-semibold transition-all duration-200 ${isActive
+                        ? "bg-purple-600 text-white shadow-lg shadow-purple-900/30"
+                        : "text-slate-300 hover:bg-slate-700/60 hover:text-white"
+                      }`
+                    }
+                  >
+                    <item.icon className="w-[17px] h-[17px] flex-shrink-0" />
+                    <span>{item.label}</span>
+                  </NavLink>
+                );
+              }
+
+              // Accordion parent
+              const isExpanded = expandedMenus.includes(item.id);
+              const hasActiveChild = item.children.some((c) => isActiveChild(c.path));
+
+              return (
+                <div key={item.id} className="mx-2 my-0.5">
+                  <button
+                    onClick={() => toggleMenu(item.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-200 ${hasActiveChild
+                      ? "bg-slate-700/80 text-white"
+                      : "text-slate-300 hover:bg-slate-700/60 hover:text-white"
+                      }`}
+                  >
+                    <item.icon className="w-[17px] h-[17px] flex-shrink-0" />
+                    <span className="flex-1 text-left">{item.label}</span>
+                    <motion.span
+                      animate={{ rotate: isExpanded ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <ChevronDown className="w-4 h-4 text-slate-400" />
+                    </motion.span>
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="pl-4 py-1 space-y-0.5">
+                          {item.children.map((child) => {
+                            const active = isActiveChild(child.path);
+                            return (
+                              <NavLink
+                                key={child.label}
+                                to={child.path}
+                                onClick={() => setSidebarOpen(false)}
+                                className={
+                                  `flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12px] font-medium transition-all duration-150 ${active
+                                    ? "bg-purple-600/90 text-white font-bold shadow-md shadow-purple-950/40"
+                                    : "text-slate-400 hover:bg-slate-700/50 hover:text-slate-200"
+                                  }`
+                                }
+                              >
+                                <child.icon className="w-[14px] h-[14px] flex-shrink-0" />
+                                <span>{child.label}</span>
+                              </NavLink>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </nav>
+
+          {/* Mentor & Logout Footer Section - Anchored at bottom of dark sidebar */}
+          <div className="mt-auto px-3 py-3 border-t border-slate-700/60 bg-slate-900/90 flex flex-col gap-2 shrink-0">
+            {/* Mentor Info */}
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-800/90 border border-slate-700/50 shadow-inner">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white text-xs font-bold shrink-0 shadow">
+                {studentProfile.mentorName ? studentProfile.mentorName.split(" ").map((n) => n[0]).join("").slice(0, 2) : "PK"}
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="text-[9px] font-extrabold text-emerald-400 uppercase tracking-wider block leading-none">
+                  Your Mentor
+                </span>
+                <p className="text-white text-xs font-bold truncate leading-tight mt-1">
+                  {studentProfile.mentorName}
+                </p>
+              </div>
             </div>
 
-            {/* Search */}
-            <button className="p-2 rounded-lg hover:bg-gray-100 text-gray-400">
-              <Search className="w-4.5 h-4.5" />
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-red-400 bg-red-500/10 hover:bg-red-500/20 hover:text-red-300 border border-red-500/20 transition-all shadow-sm active:scale-[0.98]"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
             </button>
-
-            {/* Notifications */}
-            <button className="relative p-2 rounded-lg hover:bg-gray-100 text-gray-400">
-              <Bell className="w-4.5 h-4.5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
-
-            {/* Profile */}
-            <div className="flex items-center gap-2 pl-2 border-l border-gray-200">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white text-[11px] font-bold shadow-md">
-                {studentProfile.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-              </div>
-              <div className="hidden sm:block">
-                <p className="text-xs font-bold text-gray-800 leading-tight">
-                  {studentProfile.name}
-                </p>
-                <p className="text-[10px] text-gray-400 leading-tight">
-                  {studentProfile.rollNumber}
-                </p>
-              </div>
-              <ChevronDown className="w-3.5 h-3.5 text-gray-400 hidden sm:block" />
-            </div>
           </div>
-        </header>
+        </aside>
 
-        {/* Page Content */}
-        <main className="flex-1 p-4 sm:p-5">
-          <Routes>
-            <Route index element={<ERPDashboard />} />
-            <Route path="attendance" element={<AttendancePage />} />
-            <Route path="timetable" element={<TimetablePage />} />
-            <Route path="results" element={<ExamResultPage />} />
-            <Route path="fees" element={<FeeDetailsPage />} />
-            <Route path="placements" element={<PlacementDrivesPage />} />
-            <Route path="resume" element={<ResumeUpdatePage />} />
-            <Route path="library-ledger" element={<LibraryLedgerPage />} />
-            <Route path="library-rules" element={<LibraryRulesPage />} />
-            <Route path="academic-calendar" element={<AcademicCalendarPage />} />
-            <Route path="notices" element={<NoticesPage />} />
-            <Route path="faculty-query" element={<QueryFacultyPage />} />
-            <Route path="profile" element={<ProfilePage />} />
-            <Route path="*" element={<Navigate to="/student-dashboard" replace />} />
-          </Routes>
-        </main>
+        {/* ── Scrollable White Content Area ── */}
+        <div className="flex-1 flex flex-col h-screen min-w-0 overflow-y-auto">
+          {/* Top Header Bar */}
+          <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 sm:px-6 py-2.5 flex items-center justify-between shadow-sm shrink-0">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-500"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+              <div className="hidden sm:flex items-center gap-2">
+                <img
+                  src="/images/Logo/logo.webp"
+                  alt="Logo"
+                  className="w-8 h-8 rounded-full bg-white border border-gray-200 p-0.5 object-contain"
+                />
+                <span className="text-base font-bold text-gray-800">
+                  Sarvadnya Vidyapeeth
+                </span>
+              </div>
+            </div>
 
-        {/* Footer */}
-        <footer className="border-t border-gray-200 bg-white px-6 py-2.5 text-center mt-auto">
-          <p className="text-[10px] text-gray-400">
-            © {new Date().getFullYear()} Sarvadnya Vidyapeeth {/* , Affiliated to Aryabhatta Knowledge University, Patna */} | Powered by{" "}
-            <a href="https://texwebsolution.in" target="_blank" rel="noopener noreferrer" className="text-purple-600 font-bold hover:underline">
-              Texweb Solution Pvt. Ltd.
-            </a>
-          </p>
-        </footer>
+            {/* Student Info + Profile */}
+            <div className="flex items-center gap-3">
+              {/* Course Info */}
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200 text-xs">
+                <span className="font-bold text-gray-700">
+                  {studentProfile.course} ({studentProfile.department})
+                </span>
+                <span className="text-gray-400">|</span>
+                <span className="text-gray-600">{studentProfile.semester}</span>
+                <span className="text-gray-400">|</span>
+                <span className="text-gray-600">Section - {studentProfile.section}</span>
+              </div>
+
+              {/* Search */}
+              <button className="p-2 rounded-lg hover:bg-gray-100 text-gray-400">
+                <Search className="w-4.5 h-4.5" />
+              </button>
+
+              {/* Notifications */}
+              <NotificationBell />
+
+              {/* Profile */}
+              <div className="flex items-center gap-2 pl-2 border-l border-gray-200">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white text-[11px] font-bold shadow-md">
+                  {studentProfile.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                </div>
+                <div className="hidden sm:block">
+                  <p className="text-xs font-bold text-gray-800 leading-tight">
+                    {studentProfile.name}
+                  </p>
+                  <p className="text-[10px] text-gray-400 leading-tight">
+                    {studentProfile.rollNumber}
+                  </p>
+                </div>
+                <ChevronDown className="w-3.5 h-3.5 text-gray-400 hidden sm:block" />
+              </div>
+            </div>
+          </header>
+
+          {/* Page Content */}
+          <main className="flex-1 p-4 sm:p-5">
+            <Routes>
+              <Route index element={<ERPDashboard />} />
+              <Route path="attendance" element={<AttendancePage />} />
+              <Route path="timetable" element={<TimetablePage />} />
+              <Route path="results" element={<ExamResultPage />} />
+              <Route path="fees" element={<FeeDetailsPage />} />
+              <Route path="placements" element={<PlacementDrivesPage />} />
+              <Route path="resume" element={<ResumeUpdatePage />} />
+              <Route path="library-ledger" element={<LibraryLedgerPage />} />
+              <Route path="library-rules" element={<LibraryRulesPage />} />
+              <Route path="academic-calendar" element={<AcademicCalendarPage />} />
+              <Route path="notices" element={<NoticesPage />} />
+              <Route path="faculty-query" element={<QueryFacultyPage />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="*" element={<Navigate to="/student-dashboard" replace />} />
+            </Routes>
+          </main>
+
+          {/* Footer */}
+          <footer className="border-t border-gray-200 bg-white px-6 py-2.5 text-center mt-auto">
+            <p className="text-[10px] text-gray-400">
+              © {new Date().getFullYear()} Sarvadnya Vidyapeeth {/* , Affiliated to Aryabhatta Knowledge University, Patna */} | Powered by{" "}
+              <a href="https://texwebsolution.in" target="_blank" rel="noopener noreferrer" className="text-purple-600 font-bold hover:underline">
+                Texweb Solution Pvt. Ltd.
+              </a>
+            </p>
+          </footer>
+        </div>
       </div>
-    </div>
+    </NotificationProvider>
   );
 }
