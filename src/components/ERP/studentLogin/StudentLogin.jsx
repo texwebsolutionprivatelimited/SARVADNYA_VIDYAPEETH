@@ -356,7 +356,7 @@ export default function StudentLogin() {
               rel="noopener noreferrer"
               className="text-purple-700 hover:text-purple-800 font-black tracking-wide transition-colors hover:underline"
             >
-              Texweb Solution Pvt. Ltd.
+              TexWeb Solution
             </a>
           </p>
         </div>

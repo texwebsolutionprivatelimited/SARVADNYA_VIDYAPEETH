@@ -209,7 +209,7 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="text-slate-500 font-medium hover:text-purple-800 transition-colors hover:underline"
             >
-              Texweb Solution Pvt. Ltd.
+              TexWeb Solution
             </a>
           </p>
         </div>

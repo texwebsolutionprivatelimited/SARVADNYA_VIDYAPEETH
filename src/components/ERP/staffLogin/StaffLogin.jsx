@@ -443,7 +443,7 @@ export default function StaffLogin() {
               rel="noopener noreferrer"
               className="text-indigo-700 hover:text-indigo-800 font-black tracking-wide transition-colors hover:underline"
             >
-              Texweb Solution Pvt. Ltd.
+              TexWeb Solution
             </a>
           </p>
         </div>
