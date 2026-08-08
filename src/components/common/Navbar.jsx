@@ -34,8 +34,8 @@ const NAV_ITEMS = [
   {
     label: "LOGIN",
     children: [
-      { label: "Students Login", path: "/student" },
-      { label: "Staff Login", path: "/staff" }
+      { label: "Student Login", path: "/student" },
+      { label: "Teacher Login", path: "/teacher" }
     ]
   }
 ];

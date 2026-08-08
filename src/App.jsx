@@ -12,51 +12,80 @@ import HostelPage from "./pages/HostelPage"
 import LiveClassesPage from "./pages/LiveClassesPage"
 import EventsPage from "./pages/EventsPage"
 import AdmissionPage from "./pages/AdmissionPage"
+import { Suspense, lazy } from "react"
 import ContactPage from "./pages/ContactPage"
 import MandatoryDisclosurePage from "./pages/MandatoryDisclosurePage"
 import BlogDetailPage from "./pages/BlogDetailPage"
-import AdminPanel from "./components/admin/AdminPanel"
-import StudentLogin from "./components/ERP/studentLogin/StudentLogin"
-import StaffLogin from "./components/ERP/staffLogin/StaffLogin"
-import StudentERP from "./components/ERP/studentDashboard/StudentERP"
-import SuperAdminLogin from "./components/ERP/superadmin/SuperAdminLogin"
-import SuperAdminERP from "./components/ERP/superadmin/SuperAdminERP"
+import AdminPanelPage from "./pages/admin/AdminPanelPage"
+import ERPExternalRedirect from "./pages/ERPExternalRedirect"
+
+// Dynamic optional imports for ERP (Allows removing or separating the erp folder without breaking website)
+const erpModules = import.meta.glob(['../erp/frontend/**/*.{jsx,js}', './erp/frontend/**/*.{jsx,js}']);
+
+function getErpComponent(paths, role) {
+  for (const p of paths) {
+    if (erpModules[p]) {
+      return lazy(erpModules[p]);
+    }
+  }
+  return () => <ERPExternalRedirect role={role} />;
+}
+
+const StudentLoginPage = getErpComponent(['../erp/frontend/auth/StudentLoginPage.jsx', './erp/frontend/auth/StudentLoginPage.jsx'], "Student ERP Portal");
+const TeacherLoginPage = getErpComponent(['../erp/frontend/auth/TeacherLoginPage.jsx', './erp/frontend/auth/TeacherLoginPage.jsx'], "Teacher & Faculty ERP");
+const SuperAdminLoginPage = getErpComponent(['../erp/frontend/auth/SuperAdminLoginPage.jsx', './erp/frontend/auth/SuperAdminLoginPage.jsx'], "Super Admin Control");
+const StudentERPPage = getErpComponent(['../erp/frontend/student/StudentERPPage.jsx', './erp/frontend/student/StudentERPPage.jsx'], "Student ERP Dashboard");
+const TeacherERPPage = getErpComponent(['../erp/frontend/teacher/TeacherERPPage.jsx', './erp/frontend/teacher/TeacherERPPage.jsx'], "Teacher ERP Dashboard");
+const SuperAdminERPPage = getErpComponent(['../erp/frontend/superadmin/SuperAdminERPPage.jsx', './erp/frontend/superadmin/SuperAdminERPPage.jsx'], "Super Admin Dashboard");
+const ERPPortalPage = getErpComponent(['../erp/frontend/ERPPortalPage.jsx', './erp/frontend/ERPPortalPage.jsx'], "Campus ERP Gateway");
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="about" element={<AboutPage />} />
-          <Route path="courses" element={<CoursesPage />} />
-          <Route path="courses/bba" element={<BbaPage />} />
-          <Route path="courses/bca" element={<BcaPage />} />
-          <Route path="campus" element={<CampusPage />} />
-          <Route path="placements" element={<PlacementsPage />} />
-          <Route path="hostel" element={<HostelPage />} />
-          <Route path="live-classes" element={<LiveClassesPage />} />
-          <Route path="events" element={<EventsPage />} />
-          <Route path="admission" element={<AdmissionPage />} />
-          <Route path="contact" element={<ContactPage />} />
-          <Route path="mandatory-disclosure" element={<MandatoryDisclosurePage />} />
-          <Route path="blog/:id" element={<BlogDetailPage />} />
-          <Route path="blogs/:id" element={<BlogDetailPage />} />
-        </Route>
-        {/* Dedicated ERP Login Pages */}
-        <Route path="/student" element={<StudentLogin />} />
-        <Route path="/student-login" element={<StudentLogin />} />
-        <Route path="/staff" element={<StaffLogin />} />
-        <Route path="/staff-login" element={<StaffLogin />} />
-        <Route path="/superadmin" element={<SuperAdminLogin />} />
-        <Route path="/superadmin-login" element={<SuperAdminLogin />} />
-        {/* Student ERP Dashboard — separate layout */}
-        <Route path="/student-dashboard/*" element={<StudentERP />} />
-        {/* Super Admin ERP Dashboard */}
-        <Route path="/superadmin-dashboard/*" element={<SuperAdminERP />} />
-        {/* Admin Panel — separate layout (no Navbar/Footer) */}
-        <Route path="/adminpanel/*" element={<AdminPanel />} />
-      </Routes>
+      <Suspense fallback={<div className="min-h-screen bg-slate-900 text-white flex items-center justify-center text-xs font-bold">Loading ERP System...</div>}>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="about" element={<AboutPage />} />
+            <Route path="courses" element={<CoursesPage />} />
+            <Route path="courses/bba" element={<BbaPage />} />
+            <Route path="courses/bca" element={<BcaPage />} />
+            <Route path="campus" element={<CampusPage />} />
+            <Route path="placements" element={<PlacementsPage />} />
+            <Route path="hostel" element={<HostelPage />} />
+            <Route path="live-classes" element={<LiveClassesPage />} />
+            <Route path="events" element={<EventsPage />} />
+            <Route path="admission" element={<AdmissionPage />} />
+            <Route path="contact" element={<ContactPage />} />
+            <Route path="mandatory-disclosure" element={<MandatoryDisclosurePage />} />
+            <Route path="blog/:id" element={<BlogDetailPage />} />
+            <Route path="blogs/:id" element={<BlogDetailPage />} />
+          </Route>
+
+          {/* Standalone ERP Gateway Entrance */}
+          <Route path="/erp" element={<ERPPortalPage />} />
+
+          {/* Dedicated ERP Login Pages */}
+          <Route path="/student" element={<StudentLoginPage />} />
+          <Route path="/student-login" element={<StudentLoginPage />} />
+          <Route path="/teacher" element={<TeacherLoginPage />} />
+          <Route path="/teacher-login" element={<TeacherLoginPage />} />
+          <Route path="/staff" element={<TeacherLoginPage />} />
+          <Route path="/staff-login" element={<TeacherLoginPage />} />
+          <Route path="/superadmin" element={<SuperAdminLoginPage />} />
+          <Route path="/superadmin-login" element={<SuperAdminLoginPage />} />
+
+          {/* Student ERP Dashboard */}
+          <Route path="/student-dashboard/*" element={<StudentERPPage />} />
+          {/* Teacher ERP Dashboard */}
+          <Route path="/teacher-dashboard/*" element={<TeacherERPPage />} />
+          {/* Super Admin ERP Dashboard */}
+          <Route path="/superadmin-dashboard/*" element={<SuperAdminERPPage />} />
+
+          {/* Admin Panel */}
+          <Route path="/adminpanel/*" element={<AdminPanelPage />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   )
 }

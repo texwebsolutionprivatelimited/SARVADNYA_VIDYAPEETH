@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { auth, onAuthStateChanged, signOut } from "../../firebase";
-import AdminLogin from "./AdminLogin";
-import AdminLayout from "./AdminLayout";
-import Dashboard from "./Dashboard";
-import BlogManager from "./BlogManager";
-import FaqManager from "./FaqManager";
-import EventManager from "./EventManager";
-import EnquiryManager from "./EnquiryManager";
-import GalleryManager from "./GalleryManager";
-import PlacementManager from "./PlacementManager";
-import NoticeManager from "./NoticeManager";
-import SettingsPanel from "./SettingsPanel";
-import TestimonialManager from "./TestimonialManager";
+import AdminLoginPage from "./AdminLoginPage";
+import AdminLayout from "../../components/admin/AdminLayout";
+import DashboardPage from "./DashboardPage";
+import BlogManagerPage from "./BlogManagerPage";
+import FaqManagerPage from "./FaqManagerPage";
+import EventManagerPage from "./EventManagerPage";
+import EnquiryManagerPage from "./EnquiryManagerPage";
+import GalleryManagerPage from "./GalleryManagerPage";
+import PlacementManagerPage from "./PlacementManagerPage";
+import NoticeManagerPage from "./NoticeManagerPage";
+import SettingsPanelPage from "./SettingsPanelPage";
+import TestimonialManagerPage from "./TestimonialManagerPage";
 
-export default function AdminPanel() {
+export default function AdminPanelPage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -72,23 +72,23 @@ export default function AdminPanel() {
   }
 
   if (!user) {
-    return <AdminLogin />;
+    return <AdminLoginPage />;
   }
 
   return (
     <Routes>
       <Route element={<AdminLayout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="blogs" element={<BlogManager />} />
-        <Route path="faqs" element={<FaqManager />} />
+        <Route index element={<DashboardPage />} />
+        <Route path="blogs" element={<BlogManagerPage />} />
+        <Route path="faqs" element={<FaqManagerPage />} />
         <Route path="brochures" element={<Navigate to="/adminpanel/faqs" replace />} />
-        <Route path="events" element={<EventManager />} />
-        <Route path="enquiries" element={<EnquiryManager />} />
-        <Route path="gallery" element={<GalleryManager />} />
-        <Route path="placements" element={<PlacementManager />} />
-        <Route path="notices" element={<NoticeManager />} />
-        <Route path="testimonials" element={<TestimonialManager />} />
-        <Route path="settings" element={<SettingsPanel />} />
+        <Route path="events" element={<EventManagerPage />} />
+        <Route path="enquiries" element={<EnquiryManagerPage />} />
+        <Route path="gallery" element={<GalleryManagerPage />} />
+        <Route path="placements" element={<PlacementManagerPage />} />
+        <Route path="notices" element={<NoticeManagerPage />} />
+        <Route path="testimonials" element={<TestimonialManagerPage />} />
+        <Route path="settings" element={<SettingsPanelPage />} />
         <Route path="*" element={<Navigate to="/adminpanel" replace />} />
       </Route>
     </Routes>

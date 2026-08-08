@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "../../firebase";
-import { Shield, Mail, Lock, AlertCircle, Loader, Eye, EyeOff } from "lucide-react";
+import { auth, signInWithEmailAndPassword } from "../../firebase";
+import { Mail, Lock, AlertCircle, Loader, Eye, EyeOff } from "lucide-react";
 
-export default function AdminLogin() {
+export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -31,7 +31,6 @@ export default function AdminLogin() {
     } catch (err) {
       console.error("Login failed:", err);
 
-      // Check for default fallback admin credentials
       if (
         cleanEmail.toLowerCase() === "admin@sarvadnya.com" &&
         cleanPassword === "sarvadnya@123"

@@ -24,10 +24,9 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
 };
 
-// Time filter options
 const TIME_FILTERS = ["Last 7 days", "Last 30 days", "Last 90 days", "All Time"];
 
-export default function Dashboard() {
+export default function DashboardPage() {
   const [counts, setCounts] = useState({
     enquiries: 0,
     blogs: 0,
@@ -41,14 +40,12 @@ export default function Dashboard() {
   const [enquiries, setEnquiries] = useState([]);
   const [activeFilter, setActiveFilter] = useState("All Time");
 
-  // Enquiry status counts
   const [enquiryStatusCounts, setEnquiryStatusCounts] = useState({
     Pending: 0,
     Responded: 0,
     Closed: 0,
   });
 
-  // Event status counts
   const [eventStatusCounts, setEventStatusCounts] = useState({
     Upcoming: 0,
     Completed: 0,
@@ -58,7 +55,6 @@ export default function Dashboard() {
   useEffect(() => {
     const unsubs = [];
 
-    // Enquiries
     unsubs.push(
       onSnapshot(collection(db, "enquiries"), (snap) => {
         const list = [];
@@ -76,7 +72,6 @@ export default function Dashboard() {
       })
     );
 
-    // Blogs
     unsubs.push(
       onSnapshot(collection(db, "blogs"), (snap) => {
         let pub = 0, draft = 0;
@@ -89,7 +84,6 @@ export default function Dashboard() {
       })
     );
 
-    // Events
     unsubs.push(
       onSnapshot(collection(db, "events"), (snap) => {
         let upcoming = 0, completed = 0, cancelled = 0;
@@ -104,21 +98,18 @@ export default function Dashboard() {
       })
     );
 
-    // Placements
     unsubs.push(
       onSnapshot(collection(db, "placements"), (snap) => {
         setCounts((prev) => ({ ...prev, placements: snap.size }));
       })
     );
 
-    // Gallery
     unsubs.push(
       onSnapshot(collection(db, "gallery"), (snap) => {
         setCounts((prev) => ({ ...prev, gallery: snap.size }));
       })
     );
 
-    // Notices
     unsubs.push(
       onSnapshot(collection(db, "notices"), (snap) => {
         setCounts((prev) => ({ ...prev, notices: snap.size }));
@@ -128,7 +119,6 @@ export default function Dashboard() {
     return () => unsubs.forEach((u) => u && u());
   }, []);
 
-  // Stat cards data
   const STATS = [
     {
       label: "Enquiries",
@@ -180,7 +170,6 @@ export default function Dashboard() {
     },
   ];
 
-  // Chart group data
   const enquiryChartData = useMemo(() => [
     { label: "Pending", value: enquiryStatusCounts.Pending, color: "#f59e0b", bg: "bg-amber-500" },
     { label: "Responded", value: enquiryStatusCounts.Responded, color: "#10b981", bg: "bg-emerald-500" },
@@ -196,7 +185,6 @@ export default function Dashboard() {
   const maxEnquiryVal = Math.max(...enquiryChartData.map((d) => d.value), 1);
   const maxEventVal = Math.max(...eventChartData.map((d) => d.value), 1);
 
-  // Reusable bar group renderer
   const renderBarGroup = (data, maxVal, delayOffset = 0) => (
     <div className="flex items-end justify-center gap-6 sm:gap-10" style={{ height: "180px" }}>
       {data.map((item, i) => {
@@ -228,7 +216,6 @@ export default function Dashboard() {
 
   return (
     <motion.div initial="hidden" animate="show" variants={stagger} className="space-y-6">
-      {/* ─── Dashboard Header ─── */}
       <motion.div variants={fadeUp} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight font-heading">
@@ -255,7 +242,6 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
-      {/* ─── Stat Cards Row ─── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
         {STATS.map((stat) => {
           const Icon = stat.icon;
@@ -281,9 +267,7 @@ export default function Dashboard() {
         })}
       </div>
 
-      {/* ─── Analytics Charts — Two Separate Groups ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Enquiry Status Chart */}
         <motion.div variants={fadeUp} className="bg-white rounded-2xl border border-purple-100/60 shadow-sm p-6">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
@@ -294,7 +278,6 @@ export default function Dashboard() {
                 Enquiry Status
               </h3>
             </div>
-            {/* Legend */}
             <div className="flex items-center gap-3 flex-wrap">
               {enquiryChartData.map((item) => (
                 <div key={item.label} className="flex items-center gap-1.5">
@@ -307,7 +290,6 @@ export default function Dashboard() {
           {renderBarGroup(enquiryChartData, maxEnquiryVal, 0)}
         </motion.div>
 
-        {/* Event Status Chart */}
         <motion.div variants={fadeUp} className="bg-white rounded-2xl border border-purple-100/60 shadow-sm p-6">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
@@ -318,7 +300,6 @@ export default function Dashboard() {
                 Event Status
               </h3>
             </div>
-            {/* Legend */}
             <div className="flex items-center gap-3 flex-wrap">
               {eventChartData.map((item) => (
                 <div key={item.label} className="flex items-center gap-1.5">
@@ -332,7 +313,6 @@ export default function Dashboard() {
         </motion.div>
       </div>
 
-      {/* ─── Recent Enquiries Table ─── */}
       <motion.div variants={fadeUp} className="bg-white rounded-2xl border border-purple-100/60 shadow-sm overflow-hidden">
         <div className="flex items-center justify-between p-5 pb-4">
           <div className="flex items-center gap-2">
@@ -351,7 +331,6 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -430,7 +409,6 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
-      {/* ─── Bottom Summary Stats ─── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <motion.div
           variants={fadeUp}
