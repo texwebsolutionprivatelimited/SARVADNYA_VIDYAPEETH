@@ -13,9 +13,9 @@ const DEFAULT_SETTINGS = {
   },
   social: {
     facebook: "https://facebook.com/sarvadnyavidyapeeth",
-    instagram: "https://instagram.com/sarvadnyavidyapeeth",
+    instagram: "https://www.instagram.com/sarvadnyavidyapeeth.in",
     twitter: "https://twitter.com/sv_patna",
-    linkedin: "https://www.linkedin.com/in/sarvadnya-vidyapeeth-patna",
+    linkedin: "https://www.linkedin.com/in/sarvadnya-vidyapeeth-patna?utm_source=share_via&utm_content=profile&utm_medium=member_android",
     youtube: "https://youtube.com/@sarvadnyavidyapeeth",
   },
 };
