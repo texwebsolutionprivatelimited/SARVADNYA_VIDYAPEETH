@@ -19,6 +19,8 @@ import AdminPanel from "./components/admin/AdminPanel"
 import StudentLogin from "./components/ERP/studentLogin/StudentLogin"
 import StaffLogin from "./components/ERP/staffLogin/StaffLogin"
 import StudentERP from "./components/ERP/studentDashboard/StudentERP"
+import SuperAdminLogin from "./components/ERP/superadmin/SuperAdminLogin"
+import SuperAdminERP from "./components/ERP/superadmin/SuperAdminERP"
 
 function App() {
   return (
@@ -46,8 +48,12 @@ function App() {
         <Route path="/student-login" element={<StudentLogin />} />
         <Route path="/staff" element={<StaffLogin />} />
         <Route path="/staff-login" element={<StaffLogin />} />
+        <Route path="/superadmin" element={<SuperAdminLogin />} />
+        <Route path="/superadmin-login" element={<SuperAdminLogin />} />
         {/* Student ERP Dashboard — separate layout */}
         <Route path="/student-dashboard/*" element={<StudentERP />} />
+        {/* Super Admin ERP Dashboard */}
+        <Route path="/superadmin-dashboard/*" element={<SuperAdminERP />} />
         {/* Admin Panel — separate layout (no Navbar/Footer) */}
         <Route path="/adminpanel/*" element={<AdminPanel />} />
       </Routes>
