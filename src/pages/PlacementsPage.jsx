@@ -339,46 +339,53 @@ export default function PlacementsPage() {
     const loadPlacements = async () => {
       try {
         const { db, collection, onSnapshot } = await import("../firebase");
-        const unsubscribe = onSnapshot(collection(db, "placements"), (snapshot) => {
-          const list = [];
-          snapshot.forEach((doc) => {
-            const data = doc.data();
-            if (data.status === "Placed") {
-              const initials = data.student
-                ? data.student
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()
-                    .slice(0, 2)
-                : "ST";
-              // Normalize the package string formatting
-              let pkg = data.package || "";
-              if (pkg && !pkg.includes("₹") && !pkg.includes("Rs")) {
-                pkg = `₹${pkg}`;
+        if (!db) return;
+        const unsubscribe = onSnapshot(
+          collection(db, "placements"),
+          (snapshot) => {
+            const list = [];
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              if (data.status === "Placed") {
+                const initials = data.student
+                  ? data.student
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2)
+                  : "ST";
+                // Normalize the package string formatting
+                let pkg = data.package || "";
+                if (pkg && !pkg.includes("₹") && !pkg.includes("Rs")) {
+                  pkg = `₹${pkg}`;
+                }
+                if (pkg && !pkg.toLowerCase().includes("lpa")) {
+                  pkg = `${pkg} LPA`;
+                }
+                list.push({
+                  name: data.student,
+                  course: `${data.course} (Batch ${data.year || "2026"})`,
+                  company: data.company,
+                  package: pkg,
+                  quote: `I am extremely grateful to the Placement Cell at Sarvadnya Vidyapeeth. Their continuous guidance, mock tests, and mentorship helped me secure a placement at ${data.company} as a ${data.role || "Professional Student"}.`,
+                  initials: initials
+                });
               }
-              if (pkg && !pkg.toLowerCase().includes("lpa")) {
-                pkg = `${pkg} LPA`;
-              }
-              list.push({
-                name: data.student,
-                course: `${data.course} (Batch ${data.year || "2026"})`,
-                company: data.company,
-                package: pkg,
-                quote: `I am extremely grateful to the Placement Cell at Sarvadnya Vidyapeeth. Their continuous guidance, mock tests, and mentorship helped me secure a placement at ${data.company} as a ${data.role || "Professional Student"}.`,
-                initials: initials
-              });
+            });
+            if (list.length > 0) {
+              setPlacementsList(list);
+            } else {
+              setPlacementsList(testimonials);
             }
-          });
-          if (list.length > 0) {
-            setPlacementsList(list);
-          } else {
-            setPlacementsList(testimonials);
+          },
+          (err) => {
+            console.warn("Firestore placements snapshot warning:", err);
           }
-        });
+        );
         return unsubscribe;
       } catch (err) {
-        console.error("Failed to load placements:", err);
+        console.warn("Failed to load placements:", err);
       }
     };
 

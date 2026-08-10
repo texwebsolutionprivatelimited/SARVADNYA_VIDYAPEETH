@@ -25,6 +25,10 @@ export function useSettings() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!db) {
+      setLoading(false);
+      return;
+    }
     const unsub = onSnapshot(
       doc(db, "settings", "siteConfig"),
       (docSnap) => {
@@ -38,7 +42,7 @@ export function useSettings() {
         setLoading(false);
       },
       (err) => {
-        console.error("Firestore settings snapshot error:", err);
+        console.warn("Firestore settings snapshot warning:", err);
         setLoading(false);
       }
     );

@@ -137,7 +137,10 @@ export default function BlogDetailPage() {
     window.scrollTo(0, 0);
     setLoading(true);
 
-    if (!id) {
+    if (!db || !id) {
+      const fallback = DEFAULT_BLOGS.find((b) => String(b.id) === String(id));
+      setBlog(fallback || null);
+      setRecentBlogs(DEFAULT_BLOGS.filter((b) => String(b.id) !== String(id)).slice(0, 3));
       setLoading(false);
       return;
     }

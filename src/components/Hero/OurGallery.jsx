@@ -51,23 +51,35 @@ export default function OurGallery() {
     const loadImages = async () => {
       try {
         const { db, collection, onSnapshot } = await import("../../firebase");
-        const unsubscribe = onSnapshot(collection(db, "gallery"), (snapshot) => {
-          const list = [];
-          snapshot.forEach((doc) => {
-            const data = doc.data();
-            if (data.postArea === "home" || data.album === "Campus Tour" || data.album === "Events" || data.album === "Cultural Fest") {
-              list.push({ img: data.src, title: data.title, tag: data.album });
+        if (!db) {
+          setGalleryImages(MEMORIES);
+          return;
+        }
+        const unsubscribe = onSnapshot(
+          collection(db, "gallery"),
+          (snapshot) => {
+            const list = [];
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              if (data.postArea === "home" || data.album === "Campus Tour" || data.album === "Events" || data.album === "Cultural Fest") {
+                list.push({ img: data.src, title: data.title, tag: data.album });
+              }
+            });
+            if (list.length > 0) {
+              setGalleryImages(list);
+            } else {
+              setGalleryImages(MEMORIES);
             }
-          });
-          if (list.length > 0) {
-            setGalleryImages(list);
-          } else {
+          },
+          (err) => {
+            console.warn("Firestore gallery snapshot warning:", err);
             setGalleryImages(MEMORIES);
           }
-        });
+        );
         return unsubscribe;
       } catch (err) {
-        console.error("Failed to load gallery images:", err);
+        console.warn("Failed to load gallery images:", err);
+        setGalleryImages(MEMORIES);
       }
     };
 

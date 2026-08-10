@@ -50,21 +50,34 @@ export default function FaqSection({ className = "" }) {
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, "faqs"), (snapshot) => {
-      const list = [];
-      snapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        if (data.active !== false) {
-          list.push({ id: docSnap.id, ...data });
-        }
-      });
-      if (list.length === 0) {
-        setFaqs(FALLBACK_FAQS);
-      } else {
-        setFaqs(list);
-      }
+    if (!db) {
+      setFaqs(FALLBACK_FAQS);
       setLoading(false);
-    });
+      return;
+    }
+    const unsub = onSnapshot(
+      collection(db, "faqs"),
+      (snapshot) => {
+        const list = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (data.active !== false) {
+            list.push({ id: docSnap.id, ...data });
+          }
+        });
+        if (list.length === 0) {
+          setFaqs(FALLBACK_FAQS);
+        } else {
+          setFaqs(list);
+        }
+        setLoading(false);
+      },
+      (err) => {
+        console.warn("Firestore faqs snapshot warning:", err);
+        setFaqs(FALLBACK_FAQS);
+        setLoading(false);
+      }
+    );
 
     return () => unsub();
   }, []);

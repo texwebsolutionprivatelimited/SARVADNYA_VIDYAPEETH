@@ -343,23 +343,34 @@ export default function LatestBlogs() {
     const loadBlogs = async () => {
       try {
         const { db, collection, onSnapshot } = await import("../../firebase");
-        const unsubscribe = onSnapshot(collection(db, "blogs"), (snapshot) => {
-          const list = [];
-          snapshot.forEach((doc) => {
-            const data = doc.data();
-            if (data.status === "Published") {
-              list.push({ id: doc.id, ...data });
+        if (!db) {
+          setBlogsList(BLOGS);
+          return;
+        }
+        const unsubscribe = onSnapshot(
+          collection(db, "blogs"),
+          (snapshot) => {
+            const list = [];
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              if (data.status === "Published") {
+                list.push({ id: doc.id, ...data });
+              }
+            });
+            if (list.length > 0) {
+              setBlogsList(list);
+            } else {
+              setBlogsList(BLOGS);
             }
-          });
-          if (list.length > 0) {
-            setBlogsList(list);
-          } else {
+          },
+          (err) => {
+            console.warn("Firestore blogs snapshot warning:", err);
             setBlogsList(BLOGS);
           }
-        });
+        );
         return unsubscribe;
       } catch (err) {
-        console.error("Failed to load blogs:", err);
+        console.warn("Failed to load blogs:", err);
         setBlogsList(BLOGS);
       }
     };

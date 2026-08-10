@@ -87,42 +87,53 @@ export default function EventsPage() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "events"), async (snapshot) => {
-      const list = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.status === "Upcoming") {
-          list.push({ id: doc.id, ...data });
-        }
-      });
-      
-      if (snapshot.docs.length === 0) {
-        // Database is empty, seed it asynchronously
-        try {
-          const seeded = [];
-          for (const item of DEFAULT_UPCOMING_EVENTS) {
-            const docRef = await addDoc(collection(db, "events"), {
-              title: item.title,
-              date: item.date,
-              time: item.time,
-              venue: item.venue,
-              category: item.category,
-              desc: item.desc,
-              image: item.image,
-              status: item.status,
-              attendees: item.attendees
-            });
-            seeded.push({ id: docRef.id, ...item });
+    if (!db) {
+      setUpcomingEvents(DEFAULT_UPCOMING_EVENTS);
+      return;
+    }
+    const unsubscribe = onSnapshot(
+      collection(db, "events"),
+      async (snapshot) => {
+        const list = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.status === "Upcoming") {
+            list.push({ id: doc.id, ...data });
           }
-          setUpcomingEvents(seeded.filter(e => e.status === "Upcoming"));
-        } catch (err) {
-          console.error("Failed to seed database:", err);
-          setUpcomingEvents(DEFAULT_UPCOMING_EVENTS);
+        });
+        
+        if (snapshot.docs.length === 0) {
+          // Database is empty, seed it asynchronously
+          try {
+            const seeded = [];
+            for (const item of DEFAULT_UPCOMING_EVENTS) {
+              const docRef = await addDoc(collection(db, "events"), {
+                title: item.title,
+                date: item.date,
+                time: item.time,
+                venue: item.venue,
+                category: item.category,
+                desc: item.desc,
+                image: item.image,
+                status: item.status,
+                attendees: item.attendees
+              });
+              seeded.push({ id: docRef.id, ...item });
+            }
+            setUpcomingEvents(seeded.filter(e => e.status === "Upcoming"));
+          } catch (err) {
+            console.warn("Failed to seed database:", err);
+            setUpcomingEvents(DEFAULT_UPCOMING_EVENTS);
+          }
+        } else {
+          setUpcomingEvents(list.length > 0 ? list : DEFAULT_UPCOMING_EVENTS);
         }
-      } else {
-        setUpcomingEvents(list);
+      },
+      (err) => {
+        console.warn("Firestore events snapshot warning:", err);
+        setUpcomingEvents(DEFAULT_UPCOMING_EVENTS);
       }
-    });
+    );
 
     return unsubscribe;
   }, []);

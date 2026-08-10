@@ -126,24 +126,35 @@ export default function Testimonials() {
     const loadTestimonials = async () => {
       try {
         const { db, collection, onSnapshot } = await import("../../firebase");
-        const unsubscribe = onSnapshot(collection(db, "testimonials"), (snapshot) => {
-          const list = [];
-          snapshot.forEach((doc) => {
-            const data = doc.data();
-            // Only show active testimonials on the website
-            if (data.active !== false) {
-              list.push({ id: doc.id, ...data });
+        if (!db) {
+          setTestimonials(FALLBACK_TESTIMONIALS);
+          return;
+        }
+        const unsubscribe = onSnapshot(
+          collection(db, "testimonials"),
+          (snapshot) => {
+            const list = [];
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              // Only show active testimonials on the website
+              if (data.active !== false) {
+                list.push({ id: doc.id, ...data });
+              }
+            });
+            if (list.length > 0) {
+              setTestimonials(list);
+            } else {
+              setTestimonials(FALLBACK_TESTIMONIALS);
             }
-          });
-          if (list.length > 0) {
-            setTestimonials(list);
-          } else {
+          },
+          (err) => {
+            console.warn("Firestore testimonials snapshot warning:", err);
             setTestimonials(FALLBACK_TESTIMONIALS);
           }
-        });
+        );
         return unsubscribe;
       } catch (err) {
-        console.error("Failed to load testimonials:", err);
+        console.warn("Failed to load testimonials:", err);
         setTestimonials(FALLBACK_TESTIMONIALS);
       }
     };
