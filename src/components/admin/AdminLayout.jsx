@@ -196,7 +196,7 @@ export default function AdminLayout() {
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex flex-col items-end">
               <span className="text-[12px] font-extrabold text-purple-950">Administrator</span>
-              <span className="text-[10px] text-slate-500 font-medium">{auth.currentUser?.email || "admin@sarvadnya.com"}</span>
+              <span className="text-[10px] text-slate-500 font-medium">{auth?.currentUser?.email || "admin@sarvadnya.com"}</span>
             </div>
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-900 to-amber-500 flex items-center justify-center text-white font-black text-[13px] shadow-md shadow-purple-950/20 border-2 border-amber-300">
               A

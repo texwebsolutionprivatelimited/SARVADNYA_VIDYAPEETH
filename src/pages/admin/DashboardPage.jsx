@@ -53,68 +53,71 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
+    if (!db) return;
     const unsubs = [];
 
-    unsubs.push(
-      onSnapshot(collection(db, "enquiries"), (snap) => {
-        const list = [];
-        let pending = 0, responded = 0, closed = 0;
-        snap.forEach((d) => {
-          const data = d.data();
-          list.push({ id: d.id, ...data });
-          if (data.status === "Pending") pending++;
-          else if (data.status === "Responded") responded++;
-          else if (data.status === "Closed") closed++;
-        });
-        setCounts((prev) => ({ ...prev, enquiries: snap.size }));
-        setEnquiries(list.slice(0, 5));
-        setEnquiryStatusCounts({ Pending: pending, Responded: responded, Closed: closed });
-      })
-    );
+    const safePush = (collectionName, onSuccess) => {
+      try {
+        unsubs.push(
+          onSnapshot(
+            collection(db, collectionName),
+            onSuccess,
+            (err) => console.warn(`Firestore dashboard ${collectionName} warning:`, err)
+          )
+        );
+      } catch (e) {
+        console.warn(`Failed to attach snapshot for ${collectionName}:`, e);
+      }
+    };
 
-    unsubs.push(
-      onSnapshot(collection(db, "blogs"), (snap) => {
-        let pub = 0, draft = 0;
-        snap.forEach((d) => {
-          const data = d.data();
-          if (data.status === "Published") pub++;
-          else draft++;
-        });
-        setCounts((prev) => ({ ...prev, blogs: snap.size, blogsDraft: draft }));
-      })
-    );
+    safePush("enquiries", (snap) => {
+      const list = [];
+      let pending = 0, responded = 0, closed = 0;
+      snap.forEach((d) => {
+        const data = d.data();
+        list.push({ id: d.id, ...data });
+        if (data.status === "Pending") pending++;
+        else if (data.status === "Responded") responded++;
+        else if (data.status === "Closed") closed++;
+      });
+      setCounts((prev) => ({ ...prev, enquiries: snap.size }));
+      setEnquiries(list.slice(0, 5));
+      setEnquiryStatusCounts({ Pending: pending, Responded: responded, Closed: closed });
+    });
 
-    unsubs.push(
-      onSnapshot(collection(db, "events"), (snap) => {
-        let upcoming = 0, completed = 0, cancelled = 0;
-        snap.forEach((d) => {
-          const data = d.data();
-          if (data.status === "Upcoming") upcoming++;
-          else if (data.status === "Completed") completed++;
-          else if (data.status === "Cancelled") cancelled++;
-        });
-        setCounts((prev) => ({ ...prev, events: snap.size, eventsCompleted: completed }));
-        setEventStatusCounts({ Upcoming: upcoming, Completed: completed, Cancelled: cancelled });
-      })
-    );
+    safePush("blogs", (snap) => {
+      let pub = 0, draft = 0;
+      snap.forEach((d) => {
+        const data = d.data();
+        if (data.status === "Published") pub++;
+        else draft++;
+      });
+      setCounts((prev) => ({ ...prev, blogs: snap.size, blogsDraft: draft }));
+    });
 
-    unsubs.push(
-      onSnapshot(collection(db, "placements"), (snap) => {
-        setCounts((prev) => ({ ...prev, placements: snap.size }));
-      })
-    );
+    safePush("events", (snap) => {
+      let upcoming = 0, completed = 0, cancelled = 0;
+      snap.forEach((d) => {
+        const data = d.data();
+        if (data.status === "Upcoming") upcoming++;
+        else if (data.status === "Completed") completed++;
+        else if (data.status === "Cancelled") cancelled++;
+      });
+      setCounts((prev) => ({ ...prev, events: snap.size, eventsCompleted: completed }));
+      setEventStatusCounts({ Upcoming: upcoming, Completed: completed, Cancelled: cancelled });
+    });
 
-    unsubs.push(
-      onSnapshot(collection(db, "gallery"), (snap) => {
-        setCounts((prev) => ({ ...prev, gallery: snap.size }));
-      })
-    );
+    safePush("placements", (snap) => {
+      setCounts((prev) => ({ ...prev, placements: snap.size }));
+    });
 
-    unsubs.push(
-      onSnapshot(collection(db, "notices"), (snap) => {
-        setCounts((prev) => ({ ...prev, notices: snap.size }));
-      })
-    );
+    safePush("gallery", (snap) => {
+      setCounts((prev) => ({ ...prev, gallery: snap.size }));
+    });
+
+    safePush("notices", (snap) => {
+      setCounts((prev) => ({ ...prev, notices: snap.size }));
+    });
 
     return () => unsubs.forEach((u) => u && u());
   }, []);

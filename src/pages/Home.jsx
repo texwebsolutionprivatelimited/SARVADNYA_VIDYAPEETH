@@ -19,23 +19,30 @@ function NoticeBoard() {
     const loadNotices = async () => {
       try {
         const { db, collection, onSnapshot, query } = await import("../firebase");
+        if (!db) return;
         const q = query(collection(db, "notices"));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-          const list = [];
-          snapshot.forEach((doc) => {
-            list.push({ id: doc.id, ...doc.data() });
-          });
-          // Sort by pinned (true first), then by date descending
-          list.sort((a, b) => {
-            if (a.pinned && !b.pinned) return -1;
-            if (!a.pinned && b.pinned) return 1;
-            return new Date(b.date || 0) - new Date(a.date || 0);
-          });
-          setNotices(list);
-        });
+        const unsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            const list = [];
+            snapshot.forEach((doc) => {
+              list.push({ id: doc.id, ...doc.data() });
+            });
+            // Sort by pinned (true first), then by date descending
+            list.sort((a, b) => {
+              if (a.pinned && !b.pinned) return -1;
+              if (!a.pinned && b.pinned) return 1;
+              return new Date(b.date || 0) - new Date(a.date || 0);
+            });
+            setNotices(list);
+          },
+          (err) => {
+            console.warn("Firestore notices snapshot warning:", err);
+          }
+        );
         return unsubscribe;
       } catch (err) {
-        console.error("Failed to set up notices listener:", err);
+        console.warn("Failed to set up notices listener:", err);
       }
     };
 
