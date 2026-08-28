@@ -15,6 +15,10 @@ import AdmissionPage from "./pages/AdmissionPage"
 import { Suspense, lazy } from "react"
 import ContactPage from "./pages/ContactPage"
 import MandatoryDisclosurePage from "./pages/MandatoryDisclosurePage"
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage"
+import TermsConditionsPage from "./pages/TermsConditionsPage"
+import RefundPolicyPage from "./pages/RefundPolicyPage"
+import GrievanceRedressalPage from "./pages/GrievanceRedressalPage"
 import BlogDetailPage from "./pages/BlogDetailPage"
 import AdminPanelPage from "./pages/admin/AdminPanelPage"
 import ERPExternalRedirect from "./pages/ERPExternalRedirect"
@@ -58,6 +62,13 @@ function App() {
             <Route path="admission" element={<AdmissionPage />} />
             <Route path="contact" element={<ContactPage />} />
             <Route path="mandatory-disclosure" element={<MandatoryDisclosurePage />} />
+            <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+            <Route path="terms-conditions" element={<TermsConditionsPage />} />
+            <Route path="terms-and-conditions" element={<TermsConditionsPage />} />
+            <Route path="refund-policy" element={<RefundPolicyPage />} />
+            <Route path="cancellation-refund-policy" element={<RefundPolicyPage />} />
+            <Route path="grievance-redressal" element={<GrievanceRedressalPage />} />
+            <Route path="anti-ragging-policy" element={<GrievanceRedressalPage />} />
             <Route path="blog/:id" element={<BlogDetailPage />} />
             <Route path="blogs/:id" element={<BlogDetailPage />} />
           </Route>

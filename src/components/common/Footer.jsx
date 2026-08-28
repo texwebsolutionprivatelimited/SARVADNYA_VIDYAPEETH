@@ -21,6 +21,16 @@ const QUICK_LINKS = [
   { label: "Virtual Tour", path: "/campus" },
   { label: "Contact Us", path: "/contact" },
   { label: "Latest Blogs", path: "/#blogs" },
+  { label: "Mandatory Disclosure", path: "/mandatory-disclosure" },
+  { label: "Grievance Redressal", path: "/grievance-redressal" },
+];
+
+const POLICY_LINKS = [
+  { label: "Privacy Policy", path: "/privacy-policy" },
+  { label: "Terms & Conditions", path: "/terms-conditions" },
+  { label: "Refund Policy", path: "/refund-policy" },
+  { label: "Grievance & Anti-Ragging", path: "/grievance-redressal" },
+  { label: "Mandatory Disclosure", path: "/mandatory-disclosure" },
 ];
 
 const CAMPUS_LINKS = [
@@ -192,6 +202,21 @@ export default function Footer() {
             </ul>
           </div>
 
+        </div>
+      </div>
+
+      {/* ── Policy & Legal Links Strip ── */}
+      <div className="border-t border-purple-100/80 bg-slate-100/60">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs">
+          {POLICY_LINKS.map(({ label, path }) => (
+            <Link
+              key={label}
+              to={path}
+              className="text-slate-600 hover:text-purple-900 font-medium transition-colors"
+            >
+              {label}
+            </Link>
+          ))}
         </div>
       </div>
 
