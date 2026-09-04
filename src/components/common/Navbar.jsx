@@ -34,8 +34,8 @@ const NAV_ITEMS = [
   {
     label: "LOGIN",
     children: [
-      { label: "Student Login", path: "/student" },
-      { label: "Teacher Login", path: "/teacher" }
+      { label: "Student Login", path: "https://erp.sarvadnyavidyapeeth.in/student-login", external: true },
+      { label: "Teacher Login", path: "https://sarvadnyavidyapeeth.in", external: true }
     ]
   }
 ];
@@ -96,7 +96,27 @@ function NavDropdown({ item, isActive, onOpen, onClose, alignRight }) {
       {isHovered && (
         <div className={`absolute top-[56px] min-[1440px]:top-[60px] ${alignRight ? "right-0" : "left-0"} bg-white rounded-xl shadow-xl border border-purple-100/50 py-1.5 min-w-[190px] z-[200] animate-[slideDown_0.15s_ease-out] overflow-hidden`}>
           {item.children.map((child) => {
-            const childActive = isPathActive(child.path, pathname);
+            const isExt = child.path?.startsWith("http") || child.external;
+            const childActive = !isExt && isPathActive(child.path, pathname);
+
+            if (isExt) {
+              return (
+                <a
+                  key={child.label}
+                  href={child.path}
+                  target={child.path.includes("sarvadnyavidyapeeth.in/student-login") ? "_blank" : "_self"}
+                  rel="noopener noreferrer"
+                  onClick={() => {
+                    setIsHovered(false);
+                    onClose();
+                  }}
+                  className="block px-4 py-2 min-[1440px]:px-5 min-[1440px]:py-2.5 text-[11px] min-[1440px]:text-[12.5px] font-semibold text-slate-700 hover:bg-purple-50 hover:text-[#320C50] transition-colors"
+                >
+                  {child.label}
+                </a>
+              );
+            }
+
             return (
               <Link
                 key={child.label}
@@ -251,7 +271,24 @@ export default function Navbar() {
                   </summary>
                   <div className="pl-3 pr-1 py-1.5 space-y-1 bg-purple-50/40 rounded-xl mt-1.5 border border-purple-100/30">
                     {item.children.map((child) => {
-                      const childActive = isPathActive(child.path, pathname);
+                      const isExt = child.path?.startsWith("http") || child.external;
+                      const childActive = !isExt && isPathActive(child.path, pathname);
+
+                      if (isExt) {
+                        return (
+                          <a
+                            key={child.label}
+                            href={child.path}
+                            target={child.path.includes("sarvadnyavidyapeeth.in/student-login") ? "_blank" : "_self"}
+                            rel="noopener noreferrer"
+                            onClick={() => setMobileOpen(false)}
+                            className="block py-2 px-3.5 text-[11px] font-bold rounded-lg text-slate-600 hover:text-purple-800 hover:bg-purple-50/50 transition-colors"
+                          >
+                            {child.label}
+                          </a>
+                        );
+                      }
+
                       return (
                         <Link
                           key={child.label}

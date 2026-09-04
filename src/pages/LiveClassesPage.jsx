@@ -340,14 +340,22 @@ export default function LiveClassesPage() {
                 Access your complete profile, course syllabus, grade reports, virtual labs, online tests, and announcements published by Sarvadnya Vidyapeeth academic boards.
               </p>
               <div className="pt-2 flex flex-wrap justify-center gap-4">
-                <button className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-purple-950 font-black text-xs md:text-sm uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all shadow-md">
+                <a
+                  href="https://erp.sarvadnyavidyapeeth.in/student-login"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-purple-950 font-black text-xs md:text-sm uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all shadow-md"
+                >
                   Student Login Portal
                   <ExternalLink className="w-4 h-4" />
-                </button>
-                <button className="flex items-center gap-1.5 bg-white/10 hover:bg-white/15 border border-white/15 text-white font-black text-xs md:text-sm uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all">
+                </a>
+                <a
+                  href="https://sarvadnyavidyapeeth.in"
+                  className="flex items-center gap-1.5 bg-white/10 hover:bg-white/15 border border-white/15 text-white font-black text-xs md:text-sm uppercase tracking-wider px-6 py-3.5 rounded-xl transition-all"
+                >
                   Faculty LMS Portal
                   <ExternalLink className="w-4 h-4" />
-                </button>
+                </a>
               </div>
             </div>
           </div>

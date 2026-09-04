@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ExternalLink, GraduationCap, ShieldCheck, Users } from "lucide-react";
+import { ArrowLeft, ExternalLink, GraduationCap } from "lucide-react";
 
-export default function ERPExternalRedirect({ role = "Student Portal" }) {
-  // Replace with external ERP production URL when deployed separately
-  const externalERPUrl = "https://erp.sarvadnya.com";
+export default function ERPExternalRedirect({ role = "Student ERP Portal" }) {
+  const isStudent = role?.toLowerCase().includes("student");
+  const targetUrl = isStudent
+    ? "https://erp.sarvadnyavidyapeeth.in/student-login"
+    : "https://sarvadnyavidyapeeth.in";
+
+  useEffect(() => {
+    window.location.replace(targetUrl);
+  }, [targetUrl]);
 
   return (
     <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6 font-sans text-center">
@@ -15,21 +21,19 @@ export default function ERPExternalRedirect({ role = "Student Portal" }) {
 
         <div>
           <span className="text-[10px] font-extrabold text-indigo-400 uppercase tracking-widest block">
-            Independent ERP Cloud System
+            ERP Portal Gateway
           </span>
           <h1 className="text-xl font-bold text-white mt-1">{role}</h1>
           <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-            The ERP System is hosted on an independent cloud server for maximum performance and security.
+            Redirecting to {isStudent ? "Student Login Portal" : "Sarvadnya Vidyapeeth"}...
           </p>
         </div>
 
         <a
-          href={externalERPUrl}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={targetUrl}
           className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2"
         >
-          <span>Launch Campus ERP System</span>
+          <span>Continue to Portal</span>
           <ExternalLink className="w-4 h-4" />
         </a>
 
@@ -42,3 +46,4 @@ export default function ERPExternalRedirect({ role = "Student Portal" }) {
     </div>
   );
 }
+
