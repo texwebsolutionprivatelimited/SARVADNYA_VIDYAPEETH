@@ -24,8 +24,15 @@ import {
 } from "lucide-react";
 import { FadeIn, Counter } from "../../components/Animations";
 import SectionHeading from "../../components/SectionHeading";
+import { useSEO } from "../../hooks/useSEO";
 
 export default function BcaPage() {
+  useSEO({
+    title: "Best BCA College in Patna | Bachelor of Computer Applications - Sarvadnya Vidyapeeth",
+    description: "Sarvadnya Vidyapeeth is the Best BCA College in Patna, Bihar offering 3-year BCA degree with software coding labs, AI modules & 100% placement support.",
+    canonical: "https://sarvadnyavidyapeeth.in/courses/bca"
+  });
+
   const [openSem, setOpenSem] = useState(1);
 
   // Quick stats

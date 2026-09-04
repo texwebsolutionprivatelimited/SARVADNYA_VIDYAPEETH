@@ -4,8 +4,15 @@ import { FadeIn } from "../components/Animations";
 import { Icons } from "../components/Icons";
 import { Trophy, Coffee, Bus, ArrowRight, Clock, BookOpen, Laptop } from "lucide-react";
 import SectionHeading from "../components/SectionHeading";
+import { useSEO } from "../hooks/useSEO";
 
 export default function CampusPage() {
+  useSEO({
+    title: "Campus & Infrastructure: High-Tech Labs & 360° Tour - Sarvadnya Vidyapeeth Patna",
+    description: "Take a 360° virtual tour of Sarvadnya Vidyapeeth Patna campus. Modern computer labs, interactive smart classrooms, digital library, and sports amenities.",
+    canonical: "https://sarvadnyavidyapeeth.in/campus"
+  });
+
   const facilities = [
     {
       title: "Smart Classrooms",

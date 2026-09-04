@@ -21,8 +21,14 @@ import {
 import { FadeIn } from "../components/Animations";
 import SectionHeading from "../components/SectionHeading";
 import FaqSection from "../components/common/FaqSection";
+import { useSEO } from "../hooks/useSEO";
 
 export default function AdmissionPage() {
+  useSEO({
+    title: "Admission 2026: Apply Online | Best College in Patna - Sarvadnya Vidyapeeth",
+    description: "Apply online for BBA & BCA degree admissions 2026 at Sarvadnya Vidyapeeth Patna. Check eligibility criteria, fee structure, scholarships, and admission procedures.",
+    canonical: "https://sarvadnyavidyapeeth.in/admission"
+  });
 
   const [formData, setFormData] = useState({
     name: "",

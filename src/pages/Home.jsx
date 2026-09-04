@@ -11,6 +11,7 @@ import ResearchInnovation from "../components/Hero/ResearchInnovation";
 import LatestBlogs from "../components/Hero/LatestBlogs";
 import Testimonials from "../components/Hero/Testimonials";
 import SectionHeading from "../components/SectionHeading";
+import { useSEO } from "../hooks/useSEO";
 
 function NoticeBoard() {
   const [notices, setNotices] = useState([]);
@@ -126,6 +127,12 @@ function NoticeBoard() {
 }
 
 export default function Home() {
+  useSEO({
+    title: "Sarvadnya Vidyapeeth: Best College in Patna | Best BCA College in Patna | Best BBA College in Patna",
+    description: "Sarvadnya Vidyapeeth is the Best College in Patna, Bihar. Top BCA College & Best BBA College offering 100% placement support, modern IT labs, expert faculty & Student ERP Portal.",
+    canonical: "https://sarvadnyavidyapeeth.in/"
+  });
+
   return (
     <div className="relative bg-white w-full">
       {/* 1. Hero Section */}

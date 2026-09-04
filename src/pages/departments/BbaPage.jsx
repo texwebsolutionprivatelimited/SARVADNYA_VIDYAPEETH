@@ -22,8 +22,15 @@ import {
 } from "lucide-react";
 import { FadeIn, Counter } from "../../components/Animations";
 import SectionHeading from "../../components/SectionHeading";
+import { useSEO } from "../../hooks/useSEO";
 
 export default function BbaPage() {
+  useSEO({
+    title: "Best BBA College in Patna | Bachelor of Business Administration - Sarvadnya Vidyapeeth",
+    description: "Sarvadnya Vidyapeeth is the Best BBA College in Patna, Bihar offering 3-year BBA degree with management case studies, live internships & 100% placement support.",
+    canonical: "https://sarvadnyavidyapeeth.in/courses/bba"
+  });
+
   const [openSem, setOpenSem] = useState(1);
 
   // Quick stats

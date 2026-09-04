@@ -47,44 +47,149 @@
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
 
-  <!-- JSON-LD Structured Data Schema -->
+  <!-- JSON-LD Structured Data Schema for Google Sitelinks & Organization -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "CollegeOrUniversity",
-      "name": "Sarvadnya Vidyapeeth",
-      "alternateName": "Sarvadnya Vidyapeeth Patna",
-      "url": "https://sarvadnyavidyapeeth.in",
-      "logo": "https://sarvadnyavidyapeeth.in/images/Logo/logo.webp",
-      "description": "Sarvadnya Vidyapeeth is the Best College in Patna, Bihar, offering top-tier Best BCA College and Best BBA College degree courses with 100% placement assistance and high-tech campus infrastructure in Patna.",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Beur-Betaura Road, Anishabad",
-        "addressLocality": "Patna",
-        "addressRegion": "Bihar",
-        "postalCode": "800002",
-        "addressCountry": "IN"
-      },
-      "contactPoint": [
+      "@graph": [
         {
-          "@type": "ContactPoint",
-          "telephone": "+91-9955330733",
-          "contactType": "Admissions",
-          "areaServed": "IN",
-          "availableLanguage": ["en", "hi"]
+          "@type": "WebSite",
+          "@id": "https://sarvadnyavidyapeeth.in/#website",
+          "url": "https://sarvadnyavidyapeeth.in",
+          "name": "Sarvadnya Vidyapeeth",
+          "description": "Sarvadnya Vidyapeeth is the Best College in Patna, Bihar. Top BCA College & Best BBA College with 100% placement support and Student ERP Login portal.",
+          "publisher": {
+            "@id": "https://sarvadnyavidyapeeth.in/#organization"
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://sarvadnyavidyapeeth.in/?s={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
         },
         {
-          "@type": "ContactPoint",
-          "telephone": "+91-7282831934",
-          "contactType": "Enquiries",
-          "areaServed": "IN",
-          "availableLanguage": ["en", "hi"]
+          "@type": "CollegeOrUniversity",
+          "@id": "https://sarvadnyavidyapeeth.in/#organization",
+          "name": "Sarvadnya Vidyapeeth",
+          "alternateName": ["Sarvadnya Vidyapeeth Patna", "Best College in Patna", "Best BBA College in Patna", "Best BCA College in Patna"],
+          "url": "https://sarvadnyavidyapeeth.in",
+          "logo": "https://sarvadnyavidyapeeth.in/images/Logo/logo.webp",
+          "image": "https://sarvadnyavidyapeeth.in/images/Logo/logo.webp",
+          "description": "Sarvadnya Vidyapeeth is the Best College in Patna, Bihar offering top-tier Best BBA College and Best BCA College degree programs with 100% placement assistance, high-tech campus infrastructure, and cloud Student ERP system.",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Beur-Betaura Road, Anishabad",
+            "addressLocality": "Patna",
+            "addressRegion": "Bihar",
+            "postalCode": "800002",
+            "addressCountry": "IN"
+          },
+          "contactPoint": [
+            {
+              "@type": "ContactPoint",
+              "telephone": "+91-9955330733",
+              "contactType": "Admissions",
+              "areaServed": "IN",
+              "availableLanguage": ["en", "hi"]
+            },
+            {
+              "@type": "ContactPoint",
+              "telephone": "+91-7282831934",
+              "contactType": "Enquiries",
+              "areaServed": "IN",
+              "availableLanguage": ["en", "hi"]
+            }
+          ],
+          "sameAs": [
+            "https://facebook.com/sarvadnyavidyapeeth",
+            "https://www.instagram.com/sarvadnyavidyapeeth.in",
+            "https://www.linkedin.com/in/sarvadnya-vidyapeeth-patna?utm_source=share_via&utm_content=profile&utm_medium=member_android"
+          ],
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Academic Degree Courses",
+            "itemListElement": [
+              {
+                "@type": "Course",
+                "name": "Bachelor of Business Administration (BBA)",
+                "description": "Best BBA College in Patna offering 3-year full-time management degree with corporate internships, live projects, and 100% placement support.",
+                "url": "https://sarvadnyavidyapeeth.in/courses/bba",
+                "provider": {
+                  "@type": "CollegeOrUniversity",
+                  "name": "Sarvadnya Vidyapeeth",
+                  "sameAs": "https://sarvadnyavidyapeeth.in"
+                }
+              },
+              {
+                "@type": "Course",
+                "name": "Bachelor of Computer Applications (BCA)",
+                "description": "Best BCA College in Patna offering 3-year full-time computer applications degree with coding bootcamps, modern IT lab, and software industry placements.",
+                "url": "https://sarvadnyavidyapeeth.in/courses/bca",
+                "provider": {
+                  "@type": "CollegeOrUniversity",
+                  "name": "Sarvadnya Vidyapeeth",
+                  "sameAs": "https://sarvadnyavidyapeeth.in"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "@type": "ItemList",
+          "@id": "https://sarvadnyavidyapeeth.in/#sitelinks",
+          "name": "Popular Sitelinks & Portals",
+          "itemListElement": [
+            {
+              "@type": "SiteNavigationElement",
+              "position": 1,
+              "name": "Student ERP Login",
+              "description": "Direct student portal login for attendance, fees, syllabus, virtual LMS classes, and examination results.",
+              "url": "https://erp.sarvadnyavidyapeeth.in/student-login"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 2,
+              "name": "Best BBA College in Patna",
+              "description": "Explore Bachelor of Business Administration (BBA) course curriculum, top corporate internships, eligibility, and fees in Patna.",
+              "url": "https://sarvadnyavidyapeeth.in/courses/bba"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 3,
+              "name": "Best BCA College in Patna",
+              "description": "Explore Bachelor of Computer Applications (BCA) course with high-tech computer labs, software development skills, and placement records.",
+              "url": "https://sarvadnyavidyapeeth.in/courses/bca"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 4,
+              "name": "Admission 2026 Apply Online",
+              "description": "Online application for BCA & BBA admissions at Sarvadnya Vidyapeeth. Check eligibility criteria and fee structure.",
+              "url": "https://sarvadnyavidyapeeth.in/admission"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 5,
+              "name": "100% Placement Support",
+              "description": "Check our placement track record, recruiting corporate partners, internship drives, and career cell.",
+              "url": "https://sarvadnyavidyapeeth.in/placements"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 6,
+              "name": "Campus & Infrastructure Tour",
+              "description": "Take a 360-degree virtual tour of Sarvadnya Vidyapeeth campus, smart classrooms, IT labs, and library.",
+              "url": "https://sarvadnyavidyapeeth.in/campus"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 7,
+              "name": "Contact Us & Campus Location",
+              "description": "Contact Sarvadnya Vidyapeeth admission desk, phone helpline numbers, email, and campus address in Patna.",
+              "url": "https://sarvadnyavidyapeeth.in/contact"
+            }
+          ]
         }
-      ],
-      "sameAs": [
-        "https://facebook.com/sarvadnyavidyapeeth",
-        "https://www.instagram.com/sarvadnyavidyapeeth.in",
-        "https://www.linkedin.com/in/sarvadnya-vidyapeeth-patna?utm_source=share_via&utm_content=profile&utm_medium=member_android"
       ]
     }
   </script>

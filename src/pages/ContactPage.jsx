@@ -19,8 +19,15 @@ import {
 import { FadeIn } from "../components/Animations";
 import SectionHeading from "../components/SectionHeading";
 import FaqSection from "../components/common/FaqSection";
+import { useSEO } from "../hooks/useSEO";
 
 export default function ContactPage() {
+  useSEO({
+    title: "Contact Us & Campus Location | Best College in Patna - Sarvadnya Vidyapeeth",
+    description: "Get in touch with Sarvadnya Vidyapeeth admissions office, phone helplines, email, and campus address at Beur-Betaura Road, Anishabad, Patna, Bihar.",
+    canonical: "https://sarvadnyavidyapeeth.in/contact"
+  });
+
   // Tabs for different departments
   const [activeTab, setActiveTab] = useState("admissions");
 

@@ -8,6 +8,7 @@ import {
   FileText, CreditCard, Sparkles, Quote
 } from "lucide-react";
 import SectionHeading from "../../components/SectionHeading";
+import { useSEO } from "../../hooks/useSEO";
 
 // Framer Motion Variants
 const cardHover = {
@@ -21,6 +22,12 @@ const cardHover = {
 
 
 export default function AboutPage() {
+  useSEO({
+    title: "About Us | Best College in Patna - Sarvadnya Vidyapeeth",
+    description: "Learn about Sarvadnya Vidyapeeth Patna, our vision, leadership, academic excellence, and mission to empower students with top BBA & BCA education in Bihar.",
+    canonical: "https://sarvadnyavidyapeeth.in/about"
+  });
+
   return (
     <div className="bg-slate-50 min-h-screen pt-16 font-sans overflow-hidden">
 

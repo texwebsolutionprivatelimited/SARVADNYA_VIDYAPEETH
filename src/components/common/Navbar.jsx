@@ -34,8 +34,8 @@ const NAV_ITEMS = [
   {
     label: "LOGIN",
     children: [
-      { label: "Student Login", path: "https://erp.sarvadnyavidyapeeth.in/student-login", external: true },
-      { label: "Teacher Login", path: "https://sarvadnyavidyapeeth.in", external: true }
+      { label: "Student Login", path: "https://erp.sarvadnyavidyapeeth.in/student-login", external: true, target: "_blank" },
+      { label: "Teacher Login", path: "https://sarvadnyavidyapeeth.in", external: true, target: "_self" }
     ]
   }
 ];
@@ -104,7 +104,7 @@ function NavDropdown({ item, isActive, onOpen, onClose, alignRight }) {
                 <a
                   key={child.label}
                   href={child.path}
-                  target={child.path.includes("sarvadnyavidyapeeth.in/student-login") ? "_blank" : "_self"}
+                  target={child.target || (child.path?.includes("student-login") ? "_blank" : "_self")}
                   rel="noopener noreferrer"
                   onClick={() => {
                     setIsHovered(false);
@@ -279,7 +279,7 @@ export default function Navbar() {
                           <a
                             key={child.label}
                             href={child.path}
-                            target={child.path.includes("sarvadnyavidyapeeth.in/student-login") ? "_blank" : "_self"}
+                            target={child.target || (child.path?.includes("student-login") ? "_blank" : "_self")}
                             rel="noopener noreferrer"
                             onClick={() => setMobileOpen(false)}
                             className="block py-2 px-3.5 text-[11px] font-bold rounded-lg text-slate-600 hover:text-purple-800 hover:bg-purple-50/50 transition-colors"

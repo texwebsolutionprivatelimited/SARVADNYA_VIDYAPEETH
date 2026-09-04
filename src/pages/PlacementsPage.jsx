@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { FadeIn, Counter } from "../components/Animations";
 import { Icons } from "../components/Icons";
 import SectionHeading from "../components/SectionHeading";
+import { useSEO } from "../hooks/useSEO";
 import {
   Briefcase,
   Award,
@@ -140,6 +141,12 @@ const TechMahindraLogo = () => (
 );
 
 export default function PlacementsPage() {
+  useSEO({
+    title: "100% Placement Support | Top Campus Recruiters - Sarvadnya Vidyapeeth Patna",
+    description: "Explore 100% placement track record at Sarvadnya Vidyapeeth Patna. Top recruiters like TCS, Infosys, Wipro, ICICI, HDFC offering high packages for BCA & BBA.",
+    canonical: "https://sarvadnyavidyapeeth.in/placements"
+  });
+
   const location = useLocation();
 
   useEffect(() => {

@@ -31,6 +31,8 @@ export default function ERPExternalRedirect({ role = "Student ERP Portal" }) {
 
         <a
           href={targetUrl}
+          target={isStudent ? "_blank" : "_self"}
+          rel="noopener noreferrer"
           className="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center gap-2"
         >
           <span>Continue to Portal</span>
